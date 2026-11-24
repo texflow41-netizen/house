@@ -1,0 +1,2776 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#38BDF8">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Feloosy — فلوسي | إدارة المصروفات والكاش</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        globalThis.tailwind = globalThis.tailwind || {};
+        globalThis.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'success': '#10B981',
+                        'on-success': '#052E16',
+                        'success-container': '#064E3B',
+                        'on-success-container': '#A7F3D0',
+                        'warning': '#F59E0B',
+                        'on-warning': '#1C1400',
+                        'warning-container': '#451A03',
+                        'on-warning-container': '#FDE68A',
+                        'info': '#38BDF8',
+                        'on-info': '#002B3D',
+                        'info-container': '#0C4A6E',
+                        'on-info-container': '#BAE6FD',
+                        // Softer Charcoal Dark Theme Palette
+                        'dark-primary': '#38BDF8',
+                        'dark-on-primary': '#002B3D',
+                        'dark-primary-container': '#0284C7',
+                        'dark-on-primary-container': '#131416',
+                        'dark-secondary': '#7DD3FC',
+                        'dark-on-secondary': '#002B3D',
+                        'dark-secondary-container': '#0C4A6E',
+                        'dark-on-secondary-container': '#BAE6FD',
+                        'dark-tertiary': '#FFB86E',
+                        'dark-on-tertiary': '#492900',
+                        'dark-error': '#F87171',
+                        'dark-on-error': '#450A0A',
+                        'dark-error-container': '#7F1D1D',
+                        'dark-on-error-container': '#FECACA',
+                        'dark-surface': '#12151C',
+                        'dark-surface-container-lowest': '#181C25',
+                        'dark-surface-container-low': '#1E232E',
+                        'dark-surface-container': '#252B38',
+                        'dark-surface-container-high': '#2E3545',
+                        'dark-on-surface': '#F1F5F9',
+                        'dark-on-surface-variant': '#94A3B8',
+                        'dark-outline': '#64748B',
+                        'dark-outline-variant': '#2E3646',
+                        'dark-inverse-surface': '#F1F5F9',
+                        'dark-inverse-on-surface': '#181C25',
+                        'dark-inverse-primary': '#0284C7',
+                        'dark-scrim': '#000000',
+                    },
+                    fontFamily: {
+                        'sans': ['"Cairo"', 'sans-serif'],
+                        'display': ['"Cairo"', 'sans-serif'],
+                        'headline': ['"Cairo"', 'sans-serif'],
+                        'title': ['"Cairo"', 'sans-serif'],
+                        'body': ['"Cairo"', 'sans-serif'],
+                        'label': ['"Cairo"', 'sans-serif'],
+                        'mono': ['"JetBrains Mono"', 'monospace'],
+                    },
+                },
+            },
+        };
+        (function() {
+            const savedTheme = localStorage.getItem('personal_app_theme');
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet">
+    <!-- SheetJS (Excel Library) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- html2pdf Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .material-symbols-outlined {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            line-height: 1 !important;
+            box-sizing: content-box;
+            overflow: hidden;
+            white-space: nowrap;
+            direction: ltr;
+            vertical-align: middle;
+        }
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            aside {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-dark-surface text-slate-900 dark:text-dark-on-surface font-body antialiased min-h-screen transition-colors duration-200">
+
+    <!-- Executive Auth Login Screen (Bilingual Name + Email + Google Sync) -->
+    <div id="authLoginOverlay" class="fixed inset-0 bg-slate-200/95 dark:bg-dark-surface/95 backdrop-blur-md z-[100] flex items-center justify-center p-4 no-print transition-colors duration-200">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-md w-full p-7 sm:p-8">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary rounded-xl shadow-md flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-dark-on-surface mb-1">Feloosy • فلوسي</h2>
+                <p id="loginSubtitle" class="text-xs text-slate-500 dark:text-dark-on-surface-variant leading-relaxed">Enter your authorized name & email to sync your financial data</p>
+            </div>
+            
+            <div id="authLoadingState" class="py-6 text-xs text-[#006591] dark:text-dark-primary font-semibold flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                <span id="authLoadingText">Verifying session... / جاري التحقق...</span>
+            </div>
+
+            <div id="authSignInBox" class="hidden space-y-4">
+                <form onsubmit="handleNameEmailLogin(event)" class="space-y-3.5 text-left">
+                    <div>
+                        <label for="loginDisplayName" id="lblLoginName" class="block text-xs font-bold text-slate-700 dark:text-dark-on-surface mb-1">Display Name / الاسم <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 dark:text-dark-outline text-base">person</span>
+                            <input type="text" id="loginDisplayName" required placeholder="e.g. Ibrahim / كرستينا" class="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none transition font-medium">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="loginEmailAddress" id="lblLoginEmail" class="block text-xs font-bold text-slate-700 dark:text-dark-on-surface mb-1">Email Address / البريد الإلكتروني <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 dark:text-dark-outline text-base">mail</span>
+                            <input type="email" id="loginEmailAddress" dir="ltr" required placeholder="name@gmail.com" class="w-full pl-9 pr-3 py-2.5 text-xs text-left bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none transition font-medium">
+                        </div>
+                    </div>
+                    <button type="submit" id="googleSignInBtn" class="w-full bg-[#006591] dark:bg-dark-primary hover:opacity-95 text-white dark:text-dark-on-primary font-bold py-3 px-4 rounded-lg transition flex items-center justify-center gap-2.5 text-xs sm:text-sm shadow-md mt-2">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-4 h-4 bg-white rounded-full p-0.5">
+                        <span id="btnContinueText">Sign In & Continue / تسجيل الدخول</span>
+                    </button>
+                </form>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200 dark:border-dark-outline-variant"></div>
+                    <span id="orQuickLoginText" class="flex-shrink mx-3 text-[11px] text-slate-400 dark:text-dark-outline">or quick sign-in / دخول سريع</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-dark-outline-variant"></div>
+                </div>
+
+                <button type="button" onclick="signInWithGoogle()" class="w-full bg-slate-100 dark:bg-dark-surface-container-low hover:bg-slate-200 dark:hover:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface border border-slate-200 dark:border-dark-outline-variant font-bold py-2.5 px-4 rounded-lg transition flex items-center justify-center gap-2.5 text-xs">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-4 h-4">
+                    <span id="btnGoogleDirectText">Continue with Google Account</span>
+                </button>
+            </div>
+
+            <div id="authUnauthorizedBox" class="hidden space-y-4 text-center">
+                <div class="bg-rose-50 dark:bg-dark-error-container border border-rose-200 dark:border-dark-error/30 rounded-xl p-4 text-rose-700 dark:text-dark-on-error-container text-xs leading-relaxed">
+                    <span class="material-symbols-outlined text-2xl block mb-1.5">gpp_bad</span>
+                    <p class="font-bold mb-1">Unauthorized Account / حساب غير مصرّح له</p>
+                    <p id="unauthorizedEmailText" class="text-[11px] opacity-85 break-all"></p>
+                </div>
+                <button onclick="signOutGoogle()" class="w-full bg-slate-900 dark:bg-dark-surface-container text-white font-bold py-2.5 px-4 rounded-lg transition text-xs">
+                    Sign Out & Switch Account / تغيير الحساب
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- Mobile Drawer Backdrop -->
+        <div id="mobileDrawerBackdrop" onclick="closeMobileDrawer()" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden no-print"></div>
+
+        <!-- Persistent LTR Left-Hand Sidebar (Desktop) & Slide-Over Drawer (Mobile) -->
+        <aside id="appSidebar" aria-label="Sidebar Navigation" class="fixed lg:sticky top-0 left-0 z-50 w-72 h-screen bg-white dark:bg-dark-surface-container-lowest border-r border-slate-200 dark:border-dark-outline-variant flex flex-col justify-between -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out shrink-0 no-print">
+
+            <!-- Top Brand & Navigation -->
+            <div class="flex flex-col gap-3 p-4 overflow-y-auto custom-scrollbar flex-grow">
+
+                <!-- Brand Header -->
+                <div class="flex items-center justify-between gap-2 pb-3 border-b border-slate-200 dark:border-dark-outline-variant">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-10 h-10 rounded-lg bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1.5">
+                                <span data-i18n="brandName" class="font-title text-base font-extrabold text-slate-900 dark:text-dark-on-surface">Feloosy</span>
+                                <span id="cloudSyncBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-success-container text-emerald-800 dark:text-on-success-container text-[10px] font-bold">
+                                    <span class="material-symbols-outlined text-xs">cloud_done</span>
+                                    <span id="cloudSyncText">Synced</span>
+                                </span>
+                            </div>
+                            <span data-i18n="brandSub" class="text-[11px] text-slate-500 dark:text-dark-on-surface-variant">Cash & Expense Manager</span>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeMobileDrawer()" aria-label="Close sidebar" class="lg:hidden inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low text-slate-600 dark:text-dark-on-surface-variant">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+
+                <!-- Primary Navigation Group -->
+                <nav aria-label="Primary Navigation" class="flex flex-col gap-1">
+                    <span data-i18n="navMainMenu" class="text-[11px] font-bold text-slate-400 dark:text-dark-on-surface-variant px-2 mb-1">Main Menu</span>
+                    <a href="#dashboard" onclick="closeMobileDrawer()" class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary font-bold text-xs transition-colors">
+                        <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                        <span data-i18n="navDashboard">Dashboard</span>
+                    </a>
+                    <a href="#transactions-section" onclick="closeMobileDrawer()" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-dark-on-surface-variant hover:bg-slate-100 dark:hover:bg-dark-surface-container-low hover:text-slate-900 dark:hover:text-dark-on-surface font-semibold text-xs transition-colors">
+                        <span class="material-symbols-outlined text-lg">receipt_long</span>
+                        <span data-i18n="navTransactions">Transactions</span>
+                    </a>
+                    <a href="#insights-section" onclick="closeMobileDrawer()" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-dark-on-surface-variant hover:bg-slate-100 dark:hover:bg-dark-surface-container-low hover:text-slate-900 dark:hover:text-dark-on-surface font-semibold text-xs transition-colors">
+                        <span class="material-symbols-outlined text-lg">bar_chart</span>
+                        <span data-i18n="navAnalytics">Analytics</span>
+                    </a>
+                    <button type="button" onclick="closeMobileDrawer(); openBudgetModal()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-dark-on-surface-variant hover:bg-slate-100 dark:hover:bg-dark-surface-container-low hover:text-slate-900 dark:hover:text-dark-on-surface font-semibold text-xs transition-colors text-left">
+                        <span class="material-symbols-outlined text-lg">track_changes</span>
+                        <span data-i18n="navBudgets">Monthly Budgets</span>
+                    </button>
+                </nav>
+
+                <!-- Group 2: Reports & Export -->
+                <div class="flex flex-col gap-1 pt-2.5 border-t border-slate-200 dark:border-dark-outline-variant">
+                    <span data-i18n="navReportsGroup" class="text-[11px] font-bold text-slate-400 dark:text-dark-on-surface-variant px-2 mb-1">Reports & Export</span>
+                    <button type="button" onclick="closeMobileDrawer(); exportToExcel()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-emerald-100 dark:bg-success-container text-emerald-700 dark:text-on-success-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">table_view</span>
+                        </span>
+                        <span data-i18n="btnExcel">Export to Excel</span>
+                    </button>
+                    <button type="button" onclick="closeMobileDrawer(); exportToPDF()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-rose-100 dark:bg-dark-error-container text-rose-700 dark:text-dark-on-error-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">picture_as_pdf</span>
+                        </span>
+                        <span data-i18n="btnPdf">Print / Save PDF</span>
+                    </button>
+                </div>
+
+                <!-- Group 3: Backup & Restore -->
+                <div class="flex flex-col gap-1 pt-2.5 border-t border-slate-200 dark:border-dark-outline-variant">
+                    <span data-i18n="navBackupGroup" class="text-[11px] font-bold text-slate-400 dark:text-dark-on-surface-variant px-2 mb-1">Backup & Restore</span>
+                    <button type="button" onclick="closeMobileDrawer(); triggerExportFile()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-sky-100 dark:bg-dark-secondary-container text-sky-700 dark:text-dark-on-secondary-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">download</span>
+                        </span>
+                        <span data-i18n="btnExportBackup">Export Backup</span>
+                    </button>
+                    <button type="button" onclick="closeMobileDrawer(); triggerImportFile()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-slate-100 dark:bg-dark-surface-container text-slate-600 dark:text-dark-on-surface-variant flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">upload</span>
+                        </span>
+                        <span data-i18n="btnRestoreBackup">Restore from File</span>
+                    </button>
+                    <button type="button" onclick="closeMobileDrawer(); shareBackup()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-cyan-100 dark:bg-info-container text-cyan-700 dark:text-on-info-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">share</span>
+                        </span>
+                        <span data-i18n="btnDrive">Save to Google Drive</span>
+                    </button>
+                    <button type="button" onclick="closeMobileDrawer(); openSnapshotsModal()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-slate-100 dark:bg-dark-surface-container text-[#006591] dark:text-dark-primary flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">history</span>
+                        </span>
+                        <span data-i18n="btnSnapshots">Daily Snapshots</span>
+                    </button>
+                </div>
+
+                <!-- Group 4: Settings & Trash -->
+                <div class="flex flex-col gap-1 pt-2.5 border-t border-slate-200 dark:border-dark-outline-variant">
+                    <span data-i18n="navSettingsGroup" class="text-[11px] font-bold text-slate-400 dark:text-dark-on-surface-variant px-2 mb-1">Settings & Trash</span>
+                    <button type="button" onclick="closeMobileDrawer(); toggleReminderModal()" class="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="w-7 h-7 rounded bg-amber-100 dark:bg-warning-container text-amber-700 dark:text-on-warning-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">notifications</span>
+                        </span>
+                        <span data-i18n="btnReminder">Daily Reminder 10 PM</span>
+                    </button>
+                    <button type="button" onclick="closeMobileDrawer(); openTrashModal()" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-slate-700 dark:text-dark-on-surface hover:bg-slate-100 dark:hover:bg-dark-surface-container-low transition-colors text-left text-xs font-semibold">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-7 h-7 rounded bg-rose-100 dark:bg-dark-error-container text-rose-700 dark:text-dark-on-error-container flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-base">delete_outline</span>
+                            </span>
+                            <span data-i18n="btnTrash">Trash Bin</span>
+                        </span>
+                        <span id="trashCountBadge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-dark-error-container text-rose-700 dark:text-dark-on-error-container tabular-nums">0</span>
+                    </button>
+                    <button id="installBtn" type="button" onclick="closeMobileDrawer(); installApp()" class="hidden w-full items-center gap-2.5 px-3 py-1.5 rounded-lg text-[#006591] dark:text-dark-primary bg-sky-50 dark:bg-dark-secondary-container/40 transition-colors text-left text-xs font-bold">
+                        <span class="w-7 h-7 rounded bg-sky-100 dark:bg-dark-secondary-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-base">install_mobile</span>
+                        </span>
+                        <span data-i18n="btnInstall">Install App</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Sidebar Footer: User Identity & Sign Out -->
+            <div class="p-3.5 border-t border-slate-200 dark:border-dark-outline-variant bg-slate-50 dark:bg-dark-surface-container-low flex flex-col gap-2.5">
+                <div class="flex items-center gap-2.5">
+                    <div id="userAvatarInitial" class="w-9 h-9 rounded-full bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary flex items-center justify-center font-extrabold text-sm shrink-0">
+                        F
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span id="sidebarUserName" class="text-xs font-bold text-slate-900 dark:text-dark-on-surface truncate">Feloosy User</span>
+                        <span id="loggedInUserEmail" class="text-[11px] text-slate-500 dark:text-dark-on-surface-variant truncate">user@gmail.com</span>
+                    </div>
+                </div>
+                <button type="button" onclick="signOutGoogle()" class="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-rose-100 dark:bg-dark-error-container hover:bg-rose-600 dark:hover:bg-dark-error text-rose-700 dark:text-dark-on-error-container hover:text-white dark:hover:text-dark-on-error transition-colors text-xs font-bold">
+                    <span class="material-symbols-outlined text-base">logout</span>
+                    <span data-i18n="btnSignOut">Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <input type="file" id="importFileInput" class="hidden" accept=".json" onchange="importBackupJSON(event)">
+
+        <!-- Main Content Shell -->
+        <div class="flex-1 flex flex-col min-w-0">
+
+            <!-- Sticky Top Header -->
+            <header class="sticky top-0 z-30 bg-white/95 dark:bg-dark-surface-container-lowest/95 backdrop-blur-md border-b border-slate-200 dark:border-dark-outline-variant px-4 sm:px-6 py-3.5 no-print">
+                <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="openMobileDrawer()" aria-label="Open sidebar menu" class="lg:hidden inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low text-slate-800 dark:text-dark-on-surface border border-slate-200 dark:border-dark-outline-variant hover:bg-slate-200 dark:hover:bg-dark-surface-container-high">
+                            <span class="material-symbols-outlined text-xl">menu</span>
+                        </button>
+                        <div class="flex flex-col">
+                            <h1 data-i18n="headerTitle" class="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-dark-on-surface leading-tight">Financial Dashboard</h1>
+                            <p data-i18n="headerSubtitle" class="text-xs text-slate-500 dark:text-dark-on-surface-variant">Personal accounts & cash flow summary</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <!-- Hide/Show Balances Button -->
+                        <button id="toggleBalancesBtn" type="button" onclick="handleToggleBalancesClick()" class="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low text-slate-800 dark:text-dark-on-surface border border-slate-200 dark:border-dark-outline-variant hover:bg-slate-200 dark:hover:bg-dark-surface-container transition-colors text-xs font-bold">
+                            <span id="toggleBalancesIcon" class="material-symbols-outlined text-base text-[#006591] dark:text-dark-primary">visibility</span>
+                            <span id="toggleBalancesText" data-i18n="showBalances">Show Balances</span>
+                        </button>
+
+                        <!-- Bilingual Toggle (EN / عربي) -->
+                        <button id="langToggleBtn" type="button" onclick="toggleLanguage()" title="Switch Language / تغيير اللغة" class="inline-flex items-center justify-center gap-1 px-3 h-9 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low text-[#006591] dark:text-dark-primary hover:bg-slate-200 dark:hover:bg-dark-surface-container-high border border-slate-200 dark:border-dark-outline-variant transition-colors text-xs font-extrabold">
+                            <span class="material-symbols-outlined text-base">translate</span>
+                            <span id="langToggleText">عربي</span>
+                        </button>
+
+                        <!-- Theme Mode Button (Soft Dark / Light) -->
+                        <button id="themeToggleBtn" type="button" onclick="toggleTheme()" aria-label="Theme mode" class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low text-[#006591] dark:text-dark-primary hover:bg-slate-200 dark:hover:bg-dark-surface-container-high border border-slate-200 dark:border-dark-outline-variant transition-colors">
+                            <span id="themeToggleIcon" class="material-symbols-outlined text-lg">light_mode</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Workspace -->
+            <main id="dashboard" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 pb-20 flex flex-col gap-6">
+
+                <!-- Backup Reminder Banner -->
+                <div id="backupBanner" class="hidden no-print bg-amber-50 dark:bg-warning-container/60 border border-amber-300 dark:border-warning/40 text-amber-900 dark:text-on-warning-container rounded-xl px-4 py-3 text-xs flex flex-wrap items-center justify-between gap-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-base text-amber-600 dark:text-warning">warning</span>
+                        <span id="backupBannerText"></span>
+                    </span>
+                    <button onclick="triggerExportFile()" data-i18n="btnBackupNow" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition">Backup Now</button>
+                </div>
+
+                <!-- Section 1: Wallets & Balances Strip -->
+                <section aria-labelledby="wallets-heading" class="flex flex-col gap-2.5 no-print">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h2 id="wallets-heading" data-i18n="walletsHeading" class="text-sm sm:text-base font-bold text-slate-900 dark:text-dark-on-surface">Current Wallet Balances</h2>
+                        <span data-i18n="walletsSub" class="text-xs text-slate-500 dark:text-dark-on-surface-variant">Auto-calculated: Total Income minus Expenses</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                        <!-- Cash Balance Card -->
+                        <article class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col justify-between gap-2 shadow-2xs">
+                            <header class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 data-i18n="cashLabel" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant">Cash on Hand</h3>
+                                    <p id="walletBalance" class="text-2xl font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums mt-1">••••• <span class="text-xs font-bold opacity-75">EGP</span></p>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-warning-container text-amber-700 dark:text-on-warning-container flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">payments</span>
+                                </div>
+                            </header>
+                        </article>
+
+                        <!-- E-Wallet Balance Card -->
+                        <article class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col justify-between gap-2 shadow-2xs">
+                            <header class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 data-i18n="ewalletLabel" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant">E-Wallet Balance</h3>
+                                    <p id="eWalletBalance" class="text-2xl font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums mt-1">••••• <span class="text-xs font-bold opacity-75">EGP</span></p>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-sky-100 dark:bg-dark-secondary-container text-sky-700 dark:text-dark-on-secondary-container flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">smartphone</span>
+                                </div>
+                            </header>
+                        </article>
+
+                        <!-- Bank Account Balance Card -->
+                        <article class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col justify-between gap-2 shadow-2xs">
+                            <header class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 data-i18n="bankLabel" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant">Bank Account</h3>
+                                    <p id="bankBalance" class="text-2xl font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums mt-1">••••• <span class="text-xs font-bold opacity-75">EGP</span></p>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-cyan-100 dark:bg-info-container text-cyan-700 dark:text-on-info-container flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-2xl">account_balance</span>
+                                </div>
+                            </header>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- Section 2: KPI Summary Row (4 Cards) -->
+                <section aria-label="Monthly Summary" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
+                    <div class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-dark-error-container text-rose-700 dark:text-dark-on-error-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-xl">trending_down</span>
+                        </div>
+                        <div>
+                            <span id="statCard1Title" data-i18n="kpiExpenses" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant block">Total Expenses</span>
+                            <span id="statTotalAmount" class="text-lg font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums">0 <span class="text-xs font-semibold opacity-75">EGP</span></span>
+                        </div>
+                    </div>
+
+                    <div class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-success-container text-emerald-700 dark:text-on-success-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-xl">trending_up</span>
+                        </div>
+                        <div>
+                            <span id="statCard2Title" data-i18n="kpiIncome" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant block">Total Income</span>
+                            <span id="statIncomeAmount" class="text-lg font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums">0 <span class="text-xs font-semibold opacity-75">EGP</span></span>
+                        </div>
+                    </div>
+
+                    <div class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+                        <div class="w-10 h-10 rounded-xl bg-sky-100 dark:bg-dark-secondary-container text-sky-700 dark:text-dark-on-secondary-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-xl">receipt_long</span>
+                        </div>
+                        <div>
+                            <span id="statCard3Title" data-i18n="kpiCount" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant block">Transactions</span>
+                            <span id="statSecondaryCount" class="text-lg font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums">0</span>
+                        </div>
+                    </div>
+
+                    <div class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex items-center gap-3.5 shadow-2xs">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-info-container text-cyan-700 dark:text-on-info-container flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-xl">balance</span>
+                        </div>
+                        <div>
+                            <span data-i18n="kpiNet" class="text-xs font-bold text-slate-500 dark:text-dark-on-surface-variant block">Net Cash Flow</span>
+                            <span id="statNetAmount" class="text-lg font-extrabold text-emerald-600 dark:text-on-success-container tabular-nums">0 <span class="text-xs font-semibold opacity-75">EGP</span></span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Main 12-Column Workspace (Quick Entry Form + Insights & Ledger) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" id="printableContent">
+
+                    <!-- Print Header (Visible in PDF/Print only) -->
+                    <div class="hidden print-only lg:col-span-12 mb-4 text-center border-b pb-4">
+                        <h1 id="printReportTitle" class="text-2xl font-bold">Feloosy Financial Report — تقرير فلوسي المالي</h1>
+                        <p class="text-xs mt-1">Export Date: <span id="printReportDate"></span></p>
+                    </div>
+
+                    <!-- Quick Transaction Entry Form (4 cols) -->
+                    <section aria-labelledby="form-heading" class="lg:col-span-4 bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col gap-4 sticky top-20 no-print shadow-2xs">
+                        <header class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-dark-outline-variant">
+                            <h2 id="form-heading" class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-xl text-[#006591] dark:text-dark-primary" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                                <span id="formHeaderTitle" data-i18n="formTitle" class="text-base font-bold text-slate-900 dark:text-dark-on-surface">New Transaction</span>
+                            </h2>
+                            <span data-i18n="badgePersonal" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-dark-secondary-container text-sky-800 dark:text-dark-on-secondary-container">Personal</span>
+                        </header>
+
+                        <form id="expenseForm" onsubmit="handleFormSubmit(event)" class="flex flex-col gap-3.5">
+                            <input type="hidden" id="editId" value="">
+
+                            <!-- Entry Type -->
+                            <div class="flex flex-col gap-1">
+                                <span data-i18n="lblTxType" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Transaction Type</span>
+                                <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 dark:bg-dark-surface-container-low rounded-xl border border-slate-200 dark:border-dark-outline-variant">
+                                    <label class="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg cursor-pointer has-[:checked]:bg-rose-600 dark:has-[:checked]:bg-dark-error has-[:checked]:text-white dark:has-[:checked]:text-dark-on-error text-slate-600 dark:text-dark-on-surface-variant transition-colors text-xs font-bold">
+                                        <input type="radio" name="entryType" value="expense" checked onchange="handleEntryTypeChange()" class="sr-only">
+                                        <span class="material-symbols-outlined text-base">arrow_downward</span>
+                                        <span data-i18n="optExpense">Expense</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg cursor-pointer has-[:checked]:bg-emerald-600 dark:has-[:checked]:bg-success has-[:checked]:text-white dark:has-[:checked]:text-on-success text-slate-600 dark:text-dark-on-surface-variant transition-colors text-xs font-bold">
+                                        <input type="radio" name="entryType" value="income" onchange="handleEntryTypeChange()" class="sr-only">
+                                        <span class="material-symbols-outlined text-base">arrow_upward</span>
+                                        <span data-i18n="optIncome">Income / Transfer</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center justify-between">
+                                    <label for="category" data-i18n="lblCategory" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Category</label>
+                                    <button type="button" id="manageCategoryBtn" onclick="openCategoryManager()" class="inline-flex items-center gap-1 text-[#006591] dark:text-dark-primary hover:underline text-[11px] font-bold">
+                                        <span class="material-symbols-outlined text-sm">tune</span>
+                                        <span data-i18n="btnManageCats">Manage</span>
+                                    </button>
+                                </div>
+                                <select id="category" required class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-semibold text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div id="paymentMethodContainer" class="flex flex-col gap-1">
+                                <span data-i18n="lblMethod" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Payment Method</span>
+                                <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 dark:bg-dark-surface-container-low rounded-xl border border-slate-200 dark:border-dark-outline-variant">
+                                    <label class="flex items-center justify-center gap-1 py-2 px-1 rounded-lg cursor-pointer has-[:checked]:bg-amber-500 dark:has-[:checked]:bg-warning has-[:checked]:text-slate-950 dark:has-[:checked]:text-on-warning text-slate-600 dark:text-dark-on-surface-variant transition-colors text-[11px] font-bold">
+                                        <input type="radio" name="paymentMethod" value="cash" checked class="sr-only">
+                                        <span class="material-symbols-outlined text-sm">payments</span>
+                                        <span data-i18n="optCash">Cash</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-1 py-2 px-1 rounded-lg cursor-pointer has-[:checked]:bg-[#006591] dark:has-[:checked]:bg-dark-primary has-[:checked]:text-white dark:has-[:checked]:text-dark-on-primary text-slate-600 dark:text-dark-on-surface-variant transition-colors text-[11px] font-bold">
+                                        <input type="radio" name="paymentMethod" value="ewallet" class="sr-only">
+                                        <span class="material-symbols-outlined text-sm">smartphone</span>
+                                        <span data-i18n="optWallet">Wallet</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-1 py-2 px-1 rounded-lg cursor-pointer has-[:checked]:bg-sky-500 dark:has-[:checked]:bg-info has-[:checked]:text-slate-950 dark:has-[:checked]:text-on-info text-slate-600 dark:text-dark-on-surface-variant transition-colors text-[11px] font-bold">
+                                        <input type="radio" name="paymentMethod" value="bank" class="sr-only">
+                                        <span class="material-symbols-outlined text-sm">account_balance</span>
+                                        <span data-i18n="optBank">Bank</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Internal Transfer Notice Box -->
+                            <div id="transferNoticeBox" class="hidden bg-amber-50 dark:bg-warning-container/60 border border-amber-200 dark:border-warning/30 rounded-xl p-3 text-xs text-amber-900 dark:text-on-warning-container">
+                                <div class="flex items-center gap-1.5 font-bold mb-1">
+                                    <span class="material-symbols-outlined text-base text-amber-600 dark:text-warning">swap_horiz</span>
+                                    <span id="transferNoticeTitle">Internal Transfer</span>
+                                </div>
+                                <p id="transferNoticeDesc" class="text-[11px] opacity-90 leading-relaxed"></p>
+                            </div>
+
+                            <!-- Party Name -->
+                            <div id="clientFieldContainer" class="flex flex-col gap-1">
+                                <label id="clientLabel" for="clientName" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Merchant / Person</label>
+                                <input id="clientName" type="text" list="clientsList" autocomplete="off" placeholder="e.g. Carrefour / سوبر ماركت" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-medium text-slate-900 dark:text-dark-on-surface placeholder:text-slate-400 dark:placeholder:text-dark-outline focus:border-dark-primary outline-none transition-colors">
+                            </div>
+
+                            <!-- Amount & Date -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <label class="flex flex-col gap-1">
+                                    <span data-i18n="lblAmount" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Amount (EGP)</span>
+                                    <input id="amount" type="number" min="1" step="1" required placeholder="0" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-bold text-slate-900 dark:text-dark-on-surface tabular-nums focus:border-dark-primary outline-none">
+                                </label>
+                                <label class="flex flex-col gap-1">
+                                    <span data-i18n="lblDate" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Date</span>
+                                    <input id="expenseDate" type="date" required class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-medium text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none">
+                                </label>
+                            </div>
+
+                            <!-- Notes -->
+                            <label class="flex flex-col gap-1">
+                                <span data-i18n="lblNotes" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Notes</span>
+                                <textarea id="notes" rows="2" placeholder="Optional details / ملاحظات إضافية..." class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-medium text-slate-900 dark:text-dark-on-surface placeholder:text-slate-400 dark:placeholder:text-dark-outline focus:border-dark-primary outline-none"></textarea>
+                            </label>
+
+                            <!-- Submit & Cancel -->
+                            <div class="flex gap-2 pt-1">
+                                <button type="submit" id="submitBtn" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary hover:opacity-95 transition-colors text-xs font-bold shadow-sm">
+                                    <span class="material-symbols-outlined text-base">check_circle</span>
+                                    <span id="submitBtnText" data-i18n="btnSaveTx">Save Transaction</span>
+                                </button>
+                                <button type="button" id="cancelEditBtn" onclick="resetForm()" data-i18n="btnCancel" class="hidden px-3 py-2.5 rounded-lg bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold text-xs transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <!-- Right/Main Insights + Transactions Table (8 cols) -->
+                    <div class="lg:col-span-8 flex flex-col gap-5">
+
+                        <!-- Insights & Budgets Row -->
+                        <div id="insights-section" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+
+                            <!-- Top Categories Card -->
+                            <section class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col gap-3.5 shadow-2xs">
+                                <header class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-lg text-rose-500 dark:text-dark-error">pie_chart</span>
+                                    <h3 data-i18n="topCatsTitle" class="text-sm font-bold text-slate-900 dark:text-dark-on-surface">Top Expense Categories</h3>
+                                </header>
+                                <div id="categoryBars" class="flex flex-col gap-3"></div>
+                            </section>
+
+                            <!-- Monthly Budgets Card -->
+                            <section id="budgets-section" class="h-full bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-5 flex flex-col justify-between gap-3.5 shadow-2xs">
+                                <header class="flex items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-lg text-amber-500 dark:text-warning">track_changes</span>
+                                        <h3 data-i18n="budgetsTitle" class="text-sm font-bold text-slate-900 dark:text-dark-on-surface">Monthly Budgets</h3>
+                                    </div>
+                                    <button type="button" onclick="openBudgetModal()" class="no-print inline-flex items-center gap-1 text-[#006591] dark:text-dark-primary hover:underline text-xs font-bold">
+                                        <span class="material-symbols-outlined text-sm">tune</span>
+                                        <span data-i18n="btnConfigure">Configure</span>
+                                    </button>
+                                </header>
+                                <div id="budgetBody" class="flex flex-col gap-3"></div>
+                            </section>
+                        </div>
+
+                        <!-- 6-Month Overview + Month Comparison Collapsible/Compact Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+                            <section class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex flex-col gap-3 shadow-2xs">
+                                <header class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-dark-on-surface">
+                                        <span class="material-symbols-outlined text-base text-[#006591] dark:text-dark-primary">bar_chart</span>
+                                        <span data-i18n="sixMonthsTitle">Last 6 Months</span>
+                                    </span>
+                                    <span class="text-[10px] font-bold">
+                                        <span class="text-emerald-600 dark:text-on-success-container">■ <span data-i18n="legendInc">Income</span></span>
+                                        <span class="text-rose-600 dark:text-dark-error ml-2">■ <span data-i18n="legendExp">Expense</span></span>
+                                    </span>
+                                </header>
+                                <div id="monthlyBars" class="flex items-end gap-2"></div>
+                            </section>
+
+                            <section class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex flex-col gap-3 shadow-2xs">
+                                <header class="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-dark-on-surface">
+                                    <span class="material-symbols-outlined text-base text-sky-500 dark:text-info">compare_arrows</span>
+                                    <span data-i18n="monthCompareTitle">This Month vs Last Month</span>
+                                </header>
+                                <div id="monthCompareBody" class="space-y-2.5"></div>
+                            </section>
+                        </div>
+
+                        <!-- Filters & Search Bar -->
+                        <section id="transactions-section" aria-label="Filter transactions" class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl p-4 flex flex-col gap-3 no-print shadow-2xs">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-2.5 items-center">
+                                <div class="md:col-span-6 relative flex items-center">
+                                    <span aria-hidden="true" class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-dark-outline text-lg pointer-events-none">search</span>
+                                    <input id="searchInput" type="search" oninput="applyFilters()" placeholder="Search merchant, category, notes / بحث..." class="w-full pl-9 pr-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-medium text-slate-900 dark:text-dark-on-surface placeholder:text-slate-400 dark:placeholder:text-dark-outline focus:border-dark-primary outline-none">
+                                </div>
+                                <div class="md:col-span-3">
+                                    <select id="filterType" onchange="applyFilters()" class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant text-xs font-semibold text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none">
+                                        <option value="" data-i18n="optAllTypes">All Types / الكل</option>
+                                        <option value="expense" data-i18n="optExpOnly">Expenses Only / مصروفات</option>
+                                        <option value="income" data-i18n="optIncOnly">Income Only / إيرادات</option>
+                                        <option value="transfer" data-i18n="optTransfers">Transfers / تحويلات</option>
+                                    </select>
+                                </div>
+                                <div class="md:col-span-3 flex gap-1.5 justify-end">
+                                    <button type="button" onclick="toggleAdvancedFilters()" title="Date & Category Filters" class="px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low hover:bg-slate-200 dark:hover:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface-variant border border-slate-200 dark:border-dark-outline-variant transition-colors text-xs">
+                                        <span class="material-symbols-outlined text-base">filter_list</span>
+                                    </button>
+                                    <button type="button" onclick="resetFilters()" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-slate-100 dark:bg-dark-surface-container-low hover:bg-slate-200 dark:hover:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface-variant border border-slate-200 dark:border-dark-outline-variant transition-colors text-xs font-bold">
+                                        <span class="material-symbols-outlined text-base">restart_alt</span>
+                                        <span data-i18n="btnReset">Reset</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Collapsible Date / Category / Sort Row -->
+                            <div id="advancedFiltersRow" class="hidden pt-2.5 border-t border-slate-200 dark:border-dark-outline-variant flex flex-col gap-2.5">
+                                <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                                    <input type="date" id="filterStartDate" onchange="applyFilters()" title="From Date" class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface outline-none">
+                                    <input type="date" id="filterEndDate" onchange="applyFilters()" title="To Date" class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface outline-none">
+                                    <select id="filterCategory" onchange="applyFilters()" class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface outline-none">
+                                        <option value="">All Categories / كل التصنيفات</option>
+                                    </select>
+                                    <select id="sortSelect" onchange="sortMode=this.value;applyFilters()" class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface outline-none">
+                                        <option value="date_desc">Newest First / الأحدث</option>
+                                        <option value="date_asc">Oldest First / الأقدم</option>
+                                        <option value="amount_desc">Highest Amount / الأعلى</option>
+                                        <option value="amount_asc">Lowest Amount / الأقل</option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <button type="button" onclick="setQuickRange('today')" class="bg-slate-100 dark:bg-dark-surface-container hover:bg-sky-100 dark:hover:bg-dark-secondary-container text-slate-700 dark:text-dark-on-surface font-semibold px-2.5 py-1 rounded-md text-[11px] transition">Today / اليوم</button>
+                                    <button type="button" onclick="setQuickRange('month')" class="bg-slate-100 dark:bg-dark-surface-container hover:bg-sky-100 dark:hover:bg-dark-secondary-container text-slate-700 dark:text-dark-on-surface font-semibold px-2.5 py-1 rounded-md text-[11px] transition">This Month / هذا الشهر</button>
+                                    <button type="button" onclick="setQuickRange('lastMonth')" class="bg-slate-100 dark:bg-dark-surface-container hover:bg-sky-100 dark:hover:bg-dark-secondary-container text-slate-700 dark:text-dark-on-surface font-semibold px-2.5 py-1 rounded-md text-[11px] transition">Last Month / الشهر الماضي</button>
+                                    <button type="button" onclick="setQuickRange('year')" class="bg-slate-100 dark:bg-dark-surface-container hover:bg-sky-100 dark:hover:bg-dark-secondary-container text-slate-700 dark:text-dark-on-surface font-semibold px-2.5 py-1 rounded-md text-[11px] transition">This Year / هذه السنة</button>
+                                    <span id="clientFilterChip" class="hidden inline-flex items-center gap-1.5 bg-sky-100 dark:bg-dark-secondary-container text-sky-800 dark:text-dark-on-secondary-container text-[11px] font-bold px-2.5 py-1 rounded-md">
+                                        <span class="material-symbols-outlined text-xs">person</span>
+                                        <span id="clientFilterName"></span>
+                                        <button type="button" onclick="filterByClient('')" class="hover:text-rose-500">✕</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Transactions Ledger Table -->
+                        <section aria-label="Transactions Ledger" class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl overflow-hidden shadow-2xs">
+                            <div class="overflow-x-auto custom-scrollbar">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 dark:bg-dark-surface-container-low border-b border-slate-200 dark:border-dark-outline-variant text-slate-500 dark:text-dark-on-surface-variant text-xs font-bold">
+                                            <th scope="col" data-i18n="thDate" class="py-3 px-4">Date</th>
+                                            <th scope="col" data-i18n="thMerchant" class="py-3 px-4">Merchant / Party</th>
+                                            <th scope="col" data-i18n="thCategory" class="py-3 px-4">Category</th>
+                                            <th scope="col" data-i18n="thMethod" class="py-3 px-4">Method</th>
+                                            <th scope="col" data-i18n="thAmount" class="py-3 px-4">Amount</th>
+                                            <th scope="col" data-i18n="thActions" class="py-3 px-4 text-center no-print">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expenseTableBody" class="divide-y divide-slate-100 dark:divide-dark-outline-variant text-xs">
+                                        <!-- Rendered dynamically from Firebase/LocalStorage -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div id="loadMoreWrap" class="hidden p-3 text-center border-t border-slate-200 dark:border-dark-outline-variant no-print">
+                                <button onclick="loadMore()" class="text-xs font-bold text-[#006591] dark:text-dark-primary hover:underline transition">
+                                    Load More / عرض المزيد (<span id="loadMoreCount">0</span>)
+                                </button>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div id="emptyState" class="p-10 text-center hidden">
+                                <div class="w-12 h-12 bg-slate-100 dark:bg-dark-surface-container text-slate-400 dark:text-dark-outline rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <span class="material-symbols-outlined text-2xl">inbox</span>
+                                </div>
+                                <p data-i18n="emptyTitle" class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">No transactions recorded</p>
+                                <p data-i18n="emptySub" class="text-[11px] text-slate-400 dark:text-dark-on-surface-variant mt-1">Add a new transaction using the side form</p>
+                            </div>
+                        </section>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Password Modal for Balances -->
+    <div id="balancePasswordModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-sm w-full p-6 relative text-center">
+            <button onclick="closeBalancePasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <div class="w-12 h-12 bg-amber-100 dark:bg-warning-container text-amber-600 dark:text-on-warning-container rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-2xl">lock</span>
+            </div>
+            
+            <!-- Unlock View -->
+            <div id="unlockPasswordSection">
+                <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base mb-1">Show Balances / إظهار الأرصدة</h3>
+                <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant mb-2">Enter password to reveal Cash, E-Wallet & Bank balances</p>
+                
+                <div class="bg-sky-50 dark:bg-dark-secondary-container/50 border border-sky-200 dark:border-dark-secondary/30 text-sky-900 dark:text-dark-on-secondary-container text-[11px] font-semibold px-3 py-2 rounded-xl mb-4 leading-relaxed">
+                    Default password for new users is <b>0000</b> / كلمة المرور الافتراضية 0000
+                </div>
+                
+                <form onsubmit="verifyBalancePassword(event)" class="space-y-4">
+                    <input type="password" id="balancePasswordInput" inputmode="numeric" placeholder="••••" class="w-full px-3 py-2.5 text-center text-sm tracking-widest bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-xl text-slate-900 dark:text-dark-on-surface focus:border-dark-primary outline-none font-bold" required>
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-grow bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
+                            Confirm / تأكيد
+                        </button>
+                        <button type="button" onclick="closeBalancePasswordModal()" class="flex-grow bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2.5 px-4 rounded-xl transition text-xs">
+                            Cancel / إلغاء
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-4 pt-3 border-t border-slate-100 dark:border-dark-outline-variant">
+                    <button type="button" onclick="showChangePasswordSection()" class="text-xs text-[#006591] dark:text-dark-primary hover:underline font-bold transition inline-flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">key</span>
+                        <span>Change Password / تعديل كلمة المرور</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Change Password View -->
+            <div id="changePasswordSection" class="hidden">
+                <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base mb-1">Change Password / تعديل كلمة المرور</h3>
+                <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant mb-4">Enter current password then your new password</p>
+                
+                <form onsubmit="saveNewBalancePassword(event)" class="space-y-3 text-left">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-dark-on-surface-variant mb-1">Current Password / الحالية</label>
+                        <input type="password" id="oldBalancePasswordInput" placeholder="••••" class="w-full px-3 py-2 text-center text-sm tracking-widest bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-xl text-slate-900 dark:text-dark-on-surface outline-none font-bold" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-dark-on-surface-variant mb-1">New Password / الجديدة</label>
+                        <input type="password" id="newBalancePasswordInput" placeholder="••••" class="w-full px-3 py-2 text-center text-sm tracking-widest bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-xl text-slate-900 dark:text-dark-on-surface outline-none font-bold" required>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-dark-on-surface-variant mb-1">Confirm New Password / تأكيد الجديدة</label>
+                        <input type="password" id="confirmNewBalancePasswordInput" placeholder="••••" class="w-full px-3 py-2 text-center text-sm tracking-widest bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-xl text-slate-900 dark:text-dark-on-surface outline-none font-bold" required>
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="flex-grow bg-emerald-600 dark:bg-success text-white dark:text-on-success font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
+                            Save / حفظ
+                        </button>
+                        <button type="button" onclick="showUnlockPasswordSection()" class="flex-grow bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2.5 px-4 rounded-xl transition text-xs">
+                            Back / رجوع
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reminder Modal -->
+    <div id="reminderModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button onclick="toggleReminderModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-amber-100 dark:bg-warning-container text-amber-600 dark:text-on-warning-container rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">notifications</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base">Daily Reminder / التذكير اليومي</h3>
+                    <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant">Log your daily expenses every night at 10:00 PM</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-slate-50 dark:bg-dark-surface-container-low p-3 rounded-xl border border-slate-200 dark:border-dark-outline-variant">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-700 dark:text-dark-on-surface">Browser Notification</span>
+                        <span id="reminderStatus" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-dark-surface-container text-slate-600 dark:text-dark-on-surface-variant">Off</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="time" id="reminderTime" value="22:00" class="bg-white dark:bg-dark-surface-container border border-slate-200 dark:border-dark-outline-variant rounded-lg px-3 py-1.5 text-xs text-slate-900 dark:text-dark-on-surface outline-none">
+                        <button onclick="enableNotification()" class="bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary text-xs font-bold px-3 py-1.5 rounded-lg transition flex-grow">
+                            Enable / تفعيل
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 dark:bg-warning-container/40 p-3 rounded-xl border border-amber-200/60 dark:border-warning/30">
+                    <h4 class="text-xs font-bold text-amber-900 dark:text-on-warning-container mb-1">Phone Calendar Reminder (.ics)</h4>
+                    <p class="text-[11px] text-amber-800 dark:text-on-warning-container/80 leading-relaxed mb-3">Download a recurring calendar event for Google/Apple Calendar.</p>
+                    <button onclick="downloadCalendarICS()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold py-2 px-3 rounded-lg transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-base">event</span>
+                        <span>Add to Calendar (.ics)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Manager Modal -->
+    <div id="categoryManagerModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-md w-full p-6 relative">
+            <button onclick="closeCategoryManager()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 bg-sky-100 dark:bg-dark-secondary-container text-sky-700 dark:text-dark-on-secondary-container rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">category</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base">Manage Categories / إدارة التصنيفات</h3>
+                    <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant">Add or remove expense categories</p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="newCategoryInput" placeholder="New category name / اسم التصنيف..." class="flex-grow px-3 py-2 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-xl text-slate-900 dark:text-dark-on-surface outline-none font-medium">
+                    <button onclick="addNewCategory()" class="bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary font-bold px-4 py-2 rounded-xl text-xs transition shrink-0 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        <span>Add / إضافة</span>
+                    </button>
+                </div>
+
+                <div class="border border-slate-200 dark:border-dark-outline-variant rounded-xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                    <ul id="customCategoriesList" class="divide-y divide-slate-100 dark:divide-dark-outline-variant text-xs"></ul>
+                </div>
+                
+                <div class="flex justify-end pt-2">
+                    <button onclick="closeCategoryManager()" class="bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2 px-4 rounded-xl text-xs transition">
+                        Done / إغلاق
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-sm w-full p-6 relative text-center">
+            <div class="w-12 h-12 bg-rose-100 dark:bg-dark-error-container text-rose-600 dark:text-dark-on-error-container rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-2xl">warning</span>
+            </div>
+            <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base mb-2">Confirm Delete / تأكيد الحذف</h3>
+            <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant mb-6">Move this transaction to the Trash Bin? / سيتم نقل المعاملة إلى سلة المحذوفات.</p>
+            
+            <input type="hidden" id="deleteTargetId" value="">
+            
+            <div class="flex gap-2">
+                <button onclick="confirmDelete()" class="flex-grow bg-rose-600 dark:bg-dark-error text-white dark:text-dark-on-error font-bold py-2.5 px-4 rounded-xl transition text-xs shadow-md">
+                    Delete / حذف
+                </button>
+                <button onclick="closeDeleteModal()" class="flex-grow bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2.5 px-4 rounded-xl transition text-xs">
+                    Cancel / إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trash Bin Modal -->
+    <div id="trashModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative max-h-[85vh] flex flex-col">
+            <button onclick="closeTrashModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-dark-outline-variant">
+                <div class="w-10 h-10 bg-rose-100 dark:bg-dark-error-container text-rose-600 dark:text-dark-on-error-container rounded-xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-xl">delete_sweep</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base">Trash Bin / سلة المحذوفات</h3>
+                    <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant">Restore deleted transactions or delete them permanently</p>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-y-auto custom-scrollbar border border-slate-200 dark:border-dark-outline-variant rounded-xl">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-dark-surface-container-low border-b border-slate-200 dark:border-dark-outline-variant text-slate-600 dark:text-dark-on-surface-variant text-xs font-bold sticky top-0">
+                            <th class="py-3 px-3">Date</th>
+                            <th class="py-3 px-3">Party</th>
+                            <th class="py-3 px-3">Category</th>
+                            <th class="py-3 px-3">Amount</th>
+                            <th class="py-3 px-3 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trashTableBody" class="divide-y divide-slate-100 dark:divide-dark-outline-variant text-xs"></tbody>
+                </table>
+                <div id="trashEmptyState" class="p-8 text-center hidden">
+                    <span class="material-symbols-outlined text-3xl text-slate-400 dark:text-dark-outline block mb-2">delete_outline</span>
+                    <p class="text-xs font-bold text-slate-600 dark:text-dark-on-surface-variant">Trash bin is empty / السلة فارغة</p>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-4 mt-2 border-t border-slate-100 dark:border-dark-outline-variant">
+                <button onclick="clearTrashPermanently()" class="text-xs text-rose-600 dark:text-dark-error hover:underline font-bold transition flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">delete_forever</span>
+                    <span>Empty Trash / إفراغ السلة</span>
+                </button>
+                <button onclick="closeTrashModal()" class="bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2 px-4 rounded-xl text-xs transition">
+                    Close / إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Snapshots Modal -->
+    <div id="snapshotsModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-md w-full p-6 relative max-h-[85vh] flex flex-col">
+            <button onclick="closeSnapshotsModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base mb-1">Daily Snapshots / اللقطات اليومية</h3>
+            <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant mb-3">Automatic daily browser snapshots (last 7 days).</p>
+            <ul id="snapshotsList" class="divide-y divide-slate-100 dark:divide-dark-outline-variant text-xs overflow-y-auto border border-slate-200 dark:border-dark-outline-variant rounded-xl"></ul>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div id="budgetModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 no-print">
+        <div class="bg-white dark:bg-dark-surface-container-lowest border border-slate-200 dark:border-dark-outline-variant rounded-2xl shadow-2xl max-w-md w-full p-6 relative max-h-[85vh] flex flex-col">
+            <button onclick="closeBudgetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-dark-on-surface-variant">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+            <h3 class="font-bold text-slate-900 dark:text-dark-on-surface text-base mb-1">Monthly Budgets / الميزانية الشهرية</h3>
+            <p class="text-xs text-slate-500 dark:text-dark-on-surface-variant mb-3">Set maximum monthly spend limit (EGP) per category. Leave blank for no limit.</p>
+            <div id="budgetFields" class="space-y-2 overflow-y-auto pr-1"></div>
+            <div class="flex gap-2 pt-4">
+                <button onclick="saveBudgets()" class="flex-grow bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary font-bold py-2.5 rounded-xl text-xs">Save Budgets / حفظ</button>
+                <button onclick="closeBudgetModal()" class="bg-slate-200 dark:bg-dark-surface-container text-slate-700 dark:text-dark-on-surface font-bold py-2.5 px-4 rounded-xl text-xs">Cancel / إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="clientsList"></datalist>
+
+    <!-- Toast Notification -->
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-6 right-6 z-50 hidden items-center gap-2 px-4 py-3 rounded-xl bg-slate-900 dark:bg-dark-inverse-surface text-white dark:text-dark-inverse-on-surface shadow-2xl text-xs sm:text-sm font-semibold">
+        <span id="toastIcon" class="material-symbols-outlined text-lg text-emerald-400 dark:text-dark-inverse-primary">check_circle</span>
+        <span id="toastMessage">Done</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Bilingual UI Dictionary (EN + AR)
+        let currentLang = localStorage.getItem('personal_app_lang') || 'en';
+        const I18N = {
+            en: {
+                brandName: "Feloosy",
+                brandSub: "Cash & Expense Manager",
+                navMainMenu: "Main Menu",
+                navDashboard: "Dashboard",
+                navTransactions: "Transactions",
+                navAnalytics: "Analytics",
+                navBudgets: "Monthly Budgets",
+                navReportsGroup: "Reports & Export",
+                btnExcel: "Export to Excel",
+                btnPdf: "Print / Save PDF",
+                navBackupGroup: "Backup & Restore",
+                btnExportBackup: "Export Backup",
+                btnRestoreBackup: "Restore from File",
+                btnDrive: "Save to Google Drive",
+                btnSnapshots: "Daily Snapshots",
+                navSettingsGroup: "Settings & Trash",
+                btnReminder: "Daily Reminder 10 PM",
+                btnTrash: "Trash Bin",
+                btnInstall: "Install App",
+                btnSignOut: "Sign Out",
+                headerTitle: "Financial Dashboard",
+                headerSubtitle: "Personal accounts & cash flow summary",
+                showBalances: "Show Balances",
+                hideBalances: "Hide Balances",
+                langBtn: "عربي",
+                walletsHeading: "Current Wallet Balances",
+                walletsSub: "Auto-calculated: Total Income minus Expenses",
+                cashLabel: "Cash on Hand",
+                ewalletLabel: "E-Wallet Balance",
+                bankLabel: "Bank Account",
+                kpiExpenses: "Total Expenses",
+                kpiIncome: "Total Income",
+                kpiCount: "Categories Used",
+                kpiNet: "Net Cash Flow",
+                formTitle: "New Transaction",
+                badgePersonal: "Personal",
+                lblTxType: "Transaction Type",
+                optExpense: "Expense",
+                optIncome: "Income / Transfer",
+                lblCategory: "Category",
+                btnManageCats: "Manage",
+                lblMethod: "Payment Method",
+                optCash: "Cash",
+                optWallet: "Wallet",
+                optBank: "Bank",
+                lblAmount: "Amount (EGP)",
+                lblDate: "Date",
+                lblNotes: "Notes",
+                btnSaveTx: "Save Transaction",
+                btnUpdateTx: "Update Transaction",
+                btnCancel: "Cancel",
+                topCatsTitle: "Top Expense Categories",
+                budgetsTitle: "Monthly Budgets",
+                btnConfigure: "Configure",
+                sixMonthsTitle: "Last 6 Months",
+                legendInc: "Income",
+                legendExp: "Expense",
+                monthCompareTitle: "This Month vs Last Month",
+                btnReset: "Reset",
+                thDate: "Date",
+                thMerchant: "Merchant / Party",
+                thCategory: "Category",
+                thMethod: "Method",
+                thAmount: "Amount",
+                thActions: "Actions",
+                emptyTitle: "No transactions recorded",
+                emptySub: "Add a new transaction using the side form",
+                btnBackupNow: "Backup Now"
+            },
+            ar: {
+                brandName: "فلوسي",
+                brandSub: "إدارة الكاش والمصروفات",
+                navMainMenu: "القائمة الرئيسية",
+                navDashboard: "لوحة التحكم",
+                navTransactions: "سجل المعاملات",
+                navAnalytics: "التقارير والتحليلات",
+                navBudgets: "الميزانيات الشهرية",
+                navReportsGroup: "التقارير والتصدير",
+                btnExcel: "تصدير ملف Excel",
+                btnPdf: "طباعة / حفظ PDF",
+                navBackupGroup: "النسخ الاحتياطي",
+                btnExportBackup: "تصدير نسخة احتياطية",
+                btnRestoreBackup: "استرداد نسخة من ملف",
+                btnDrive: "حفظ على Google Drive",
+                btnSnapshots: "اللقطات اليومية",
+                navSettingsGroup: "الإعدادات والمحذوفات",
+                btnReminder: "تذكير يومي 10 مساءً",
+                btnTrash: "سلة المحذوفات",
+                btnInstall: "تثبيت التطبيق",
+                btnSignOut: "تسجيل الخروج",
+                headerTitle: "لوحة التحكم المالية",
+                headerSubtitle: "ملخص الحسابات والتدفقات النقدية الشخصية",
+                showBalances: "إظهار الأرصدة",
+                hideBalances: "إخفاء الأرصدة",
+                langBtn: "EN",
+                walletsHeading: "ملخص الأرصدة الحالية",
+                walletsSub: "تُحسب تلقائياً: الإيرادات مطروحاً منها المصروفات",
+                cashLabel: "الرصيد الفعلي في الكاش",
+                ewalletLabel: "المحفظة الإلكترونية",
+                bankLabel: "الحساب البنكي",
+                kpiExpenses: "إجمالي المصروفات",
+                kpiIncome: "إجمالي الإيرادات",
+                kpiCount: "التصنيفات المستخدمة",
+                kpiNet: "الصافي (إيراد - مصروف)",
+                formTitle: "معاملة جديدة",
+                badgePersonal: "شخصي",
+                lblTxType: "نوع المعاملة",
+                optExpense: "مصروف (خصم)",
+                optIncome: "إيراد / تحويل",
+                lblCategory: "التصنيف",
+                btnManageCats: "إدارة",
+                lblMethod: "طريقة الدفع / التحصيل",
+                optCash: "كاش",
+                optWallet: "محفظة",
+                optBank: "بنك",
+                lblAmount: "المبلغ (ج.م)",
+                lblDate: "التاريخ",
+                lblNotes: "ملاحظات",
+                btnSaveTx: "حفظ المعاملة",
+                btnUpdateTx: "تحديث المعاملة",
+                btnCancel: "إلغاء",
+                topCatsTitle: "أعلى بنود المصروفات",
+                budgetsTitle: "ميزانية الشهر",
+                btnConfigure: "ضبط",
+                sixMonthsTitle: "آخر 6 شهور",
+                legendInc: "إيراد",
+                legendExp: "مصروف",
+                monthCompareTitle: "هذا الشهر مقارنة بالماضي",
+                btnReset: "إعادة ضبط",
+                thDate: "التاريخ",
+                thMerchant: "الجهة / الشخص",
+                thCategory: "التصنيف",
+                thMethod: "الوسيلة",
+                thAmount: "المبلغ",
+                thActions: "إجراءات",
+                emptyTitle: "لا توجد معاملات مسجلة",
+                emptySub: "أضف معاملة جديدة من النموذج الجانبي",
+                btnBackupNow: "نسخة احتياطية الآن"
+            }
+        };
+
+        function applyLanguage() {
+            const dict = I18N[currentLang] || I18N.en;
+            document.documentElement.lang = currentLang;
+            // Keep LTR layout direction as requested
+            document.documentElement.dir = 'ltr';
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (dict[key]) el.textContent = dict[key];
+            });
+
+            const langBtnText = document.getElementById('langToggleText');
+            if (langBtnText) langBtnText.textContent = dict.langBtn;
+
+            const searchInp = document.getElementById('searchInput');
+            if (searchInp) {
+                searchInp.placeholder = currentLang === 'ar'
+                    ? 'ابحث بالجهة، التصنيف، الملاحظات...'
+                    : 'Search merchant, category, notes...';
+            }
+
+            updateBalanceToggleUI();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            localStorage.setItem('personal_app_lang', currentLang);
+            applyLanguage();
+            renderApp();
+        }
+
+        // Category Lists with Customization Support (Personal Only)
+        const DEFAULT_PERSONAL_EXPENSE_CATEGORIES = ["طعام ومشتريات", "سجائر", "فواتير ومرافق", "سكن وإيجار", "صحة وعلاج", "تعليم وتطوير", "ترفيه ورحلات", "أخرى"];
+        let personalExpenseCategories = JSON.parse(localStorage.getItem('personal_app_personal_expense_categories')) || [...DEFAULT_PERSONAL_EXPENSE_CATEGORIES];
+
+        const PERSONAL_INCOME_CATEGORIES = ["الراتب", "إيراد شخصي", "سحب من البنك / ATM", "سحب من محفظة إلكترونية", "تحويل من الكاش إلى المحفظة الإلكترونية", "تحويل من الكاش إلى الحساب البنكي", "سلفة / استدانة", "أخرى"];
+
+        // Global State
+        const currentTab = 'personal';
+        let expenses = JSON.parse(localStorage.getItem('personal_app_expenses_v3')) || [];
+        let trashExpenses = JSON.parse(localStorage.getItem('personal_app_trash_expenses_v3')) || [];
+        let reminderInterval = null;
+        let areBalancesVisible = false;
+        let balancePassword = localStorage.getItem('personal_app_balance_password') || '0000';
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('expenseDate').value = todayStr();
+            document.getElementById('category').addEventListener('change', handleCategoryChange);
+            
+            applyLanguage();
+            updateThemeIcon();
+            loadCategories();
+            renderApp();
+            checkSavedReminder();
+
+            const savedName = localStorage.getItem('personal_app_user_name') || '';
+            const savedEmail = localStorage.getItem('personal_app_user_email') || '';
+            const nameInp = document.getElementById('loginDisplayName');
+            const emailInp = document.getElementById('loginEmailAddress');
+            if (nameInp && savedName) nameInp.value = savedName;
+            if (emailInp && savedEmail) emailInp.value = savedEmail;
+            if (savedName) {
+                document.getElementById('sidebarUserName').textContent = savedName;
+                document.getElementById('userAvatarInitial').textContent = savedName.charAt(0).toUpperCase();
+            }
+            if (savedEmail) {
+                document.getElementById('loggedInUserEmail').textContent = savedEmail;
+            }
+        });
+
+        // Mobile Drawer Controls
+        function openMobileDrawer() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('mobileDrawerBackdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            }
+        }
+        function closeMobileDrawer() {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('mobileDrawerBackdrop');
+            if (sidebar && backdrop) {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // Theme Switcher
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('themeToggleIcon');
+            if (icon) {
+                icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+            }
+        }
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('personal_app_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function toggleAdvancedFilters() {
+            document.getElementById('advancedFiltersRow').classList.toggle('hidden');
+        }
+
+        // Balance Visibility & Password Handling
+        function handleToggleBalancesClick() {
+            if (areBalancesVisible) {
+                areBalancesVisible = false;
+                updateBalanceToggleUI();
+                updateWalletBalance();
+                showToast(currentLang === 'ar' ? "تم إخفاء الأرصدة" : "Balances hidden", "info");
+            } else {
+                const modal = document.getElementById('balancePasswordModal');
+                const input = document.getElementById('balancePasswordInput');
+                showUnlockPasswordSection();
+                input.value = '';
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => input.focus(), 50);
+            }
+        }
+
+        function closeBalancePasswordModal() {
+            const modal = document.getElementById('balancePasswordModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('balancePasswordInput').value = '';
+            document.getElementById('oldBalancePasswordInput').value = '';
+            document.getElementById('newBalancePasswordInput').value = '';
+            document.getElementById('confirmNewBalancePasswordInput').value = '';
+            showUnlockPasswordSection();
+        }
+
+        function showChangePasswordSection() {
+            document.getElementById('unlockPasswordSection').classList.add('hidden');
+            document.getElementById('changePasswordSection').classList.remove('hidden');
+            setTimeout(() => document.getElementById('oldBalancePasswordInput').focus(), 50);
+        }
+
+        function showUnlockPasswordSection() {
+            document.getElementById('changePasswordSection').classList.add('hidden');
+            document.getElementById('unlockPasswordSection').classList.remove('hidden');
+            setTimeout(() => document.getElementById('balancePasswordInput').focus(), 50);
+        }
+
+        function saveNewBalancePassword(e) {
+            e.preventDefault();
+            const oldPass = document.getElementById('oldBalancePasswordInput').value;
+            const newPass = document.getElementById('newBalancePasswordInput').value.trim();
+            const confirmPass = document.getElementById('confirmNewBalancePasswordInput').value.trim();
+
+            if (oldPass !== balancePassword) {
+                showToast("Current password is incorrect / كلمة المرور الحالية غير صحيحة", "error");
+                return;
+            }
+            if (!newPass) {
+                showToast("Please enter new password / أدخل كلمة المرور الجديدة", "error");
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showToast("Passwords do not match / غير متطابقة", "error");
+                return;
+            }
+
+            balancePassword = newPass;
+            localStorage.setItem('personal_app_balance_password', balancePassword);
+            if (window.syncSettingsToCloud) window.syncSettingsToCloud();
+            showToast("Password updated / تم التحديث بنجاح", "success");
+            showUnlockPasswordSection();
+        }
+
+        function verifyBalancePassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('balancePasswordInput').value;
+            if (pass === balancePassword) {
+                areBalancesVisible = true;
+                closeBalancePasswordModal();
+                updateBalanceToggleUI();
+                updateWalletBalance();
+                showToast(currentLang === 'ar' ? "تم إظهار الأرصدة" : "Balances revealed", "success");
+            } else {
+                showToast(currentLang === 'ar' ? "كلمة المرور غير صحيحة" : "Incorrect password", "error");
+                document.getElementById('balancePasswordInput').value = '';
+                document.getElementById('balancePasswordInput').focus();
+            }
+        }
+
+        function updateBalanceToggleUI() {
+            const dict = I18N[currentLang] || I18N.en;
+            const icon = document.getElementById('toggleBalancesIcon');
+            const text = document.getElementById('toggleBalancesText');
+            if (!icon || !text) return;
+            if (areBalancesVisible) {
+                icon.textContent = "visibility_off";
+                text.textContent = dict.hideBalances;
+            } else {
+                icon.textContent = "visibility";
+                text.textContent = dict.showBalances;
+            }
+        }
+
+        // Handle Radio Entry Type Change
+        function handleEntryTypeChange() {
+            loadCategories();
+        }
+
+        // Load Categories into Select Box
+        function loadCategories() {
+            const select = document.getElementById('category');
+            select.innerHTML = '';
+
+            const entryType = document.querySelector('input[name="entryType"]:checked')?.value || 'expense';
+            const list = entryType === 'income' ? PERSONAL_INCOME_CATEGORIES : personalExpenseCategories;
+
+            list.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
+
+            handleCategoryChange();
+        }
+
+        // Handle Dynamic Category Change & Field Display
+        function handleCategoryChange() {
+            const categoryVal = document.getElementById('category').value;
+            const entryType = document.querySelector('input[name="entryType"]:checked')?.value || 'expense';
+            const clientFieldContainer = document.getElementById('clientFieldContainer');
+            const clientLabel = document.getElementById('clientLabel');
+            const clientNameInput = document.getElementById('clientName');
+            const paymentMethodContainer = document.getElementById('paymentMethodContainer');
+            const transferNoticeBox = document.getElementById('transferNoticeBox');
+            const transferNoticeTitle = document.getElementById('transferNoticeTitle');
+            const transferNoticeDesc = document.getElementById('transferNoticeDesc');
+            const manageCategoryBtn = document.getElementById('manageCategoryBtn');
+
+            if (entryType === 'expense') {
+                manageCategoryBtn.classList.remove('hidden');
+            } else {
+                manageCategoryBtn.classList.add('hidden');
+            }
+
+            paymentMethodContainer.classList.remove('hidden');
+            transferNoticeBox.classList.add('hidden');
+
+            if (entryType === 'income') {
+                clientFieldContainer.classList.remove('hidden');
+                if (categoryVal === "سلفة / استدانة") {
+                    clientLabel.innerHTML = (currentLang === 'ar' ? 'اسم الشخص (صاحب السلفة)' : 'Lender Name') + ' <span class="text-rose-500">*</span>';
+                    clientNameInput.placeholder = currentLang === 'ar' ? "أدخل اسم الشخص الذي تسلفت منه" : "Enter person name";
+                    clientNameInput.required = true;
+                } else if (categoryVal === "الراتب") {
+                    clientLabel.textContent = currentLang === 'ar' ? 'اسم الجهة / الشركة' : 'Employer / Company';
+                    clientNameInput.placeholder = currentLang === 'ar' ? "أدخل اسم جهة العمل (اختياري)" : "Company name (optional)";
+                    clientNameInput.required = false;
+                } else if (categoryVal === "سحب من البنك / ATM") {
+                    paymentMethodContainer.classList.add('hidden');
+                    transferNoticeBox.classList.remove('hidden');
+                    transferNoticeTitle.textContent = currentLang === 'ar' ? "تحويل داخلي: من البنك إلى الكاش" : "Internal Transfer: Bank → Cash";
+                    transferNoticeDesc.textContent = currentLang === 'ar' ? "سيتم خصم المبلغ من الحساب البنكي وإضافته للكاش." : "Deducts from Bank and adds to Cash automatically.";
+                    clientLabel.textContent = currentLang === 'ar' ? 'اسم البنك / ماكينة الصراف' : 'Bank / ATM Name';
+                    clientNameInput.placeholder = "e.g. NBE / ATM";
+                    clientNameInput.required = false;
+                } else if (categoryVal === "سحب من محفظة إلكترونية" || categoryVal === "تحويل كاش إلكتروني") {
+                    paymentMethodContainer.classList.add('hidden');
+                    transferNoticeBox.classList.remove('hidden');
+                    transferNoticeTitle.textContent = currentLang === 'ar' ? "تحويل داخلي: من المحفظة إلى الكاش" : "Internal Transfer: E-Wallet → Cash";
+                    transferNoticeDesc.textContent = currentLang === 'ar' ? "سيتم خصم المبلغ من المحفظة وإضافته للكاش." : "Deducts from E-Wallet and adds to Cash automatically.";
+                    clientLabel.textContent = currentLang === 'ar' ? 'اسم المحفظة / الجهة' : 'Wallet Provider';
+                    clientNameInput.placeholder = "e.g. Vodafone Cash / InstaPay";
+                    clientNameInput.required = false;
+                } else if (categoryVal === "تحويل من الكاش إلى المحفظة الإلكترونية") {
+                    paymentMethodContainer.classList.add('hidden');
+                    transferNoticeBox.classList.remove('hidden');
+                    transferNoticeTitle.textContent = currentLang === 'ar' ? "تحويل داخلي: من الكاش إلى المحفظة" : "Internal Transfer: Cash → E-Wallet";
+                    transferNoticeDesc.textContent = currentLang === 'ar' ? "سيتم خصم المبلغ من الكاش وإضافته للمحفظة الإلكترونية." : "Deducts from Cash and adds to E-Wallet.";
+                    clientLabel.textContent = currentLang === 'ar' ? 'الجهة / رقم المحفظة' : 'Wallet Number / Details';
+                    clientNameInput.placeholder = "Optional details";
+                    clientNameInput.required = false;
+                } else if (categoryVal === "تحويل من الكاش إلى الحساب البنكي") {
+                    paymentMethodContainer.classList.add('hidden');
+                    transferNoticeBox.classList.remove('hidden');
+                    transferNoticeTitle.textContent = currentLang === 'ar' ? "تحويل داخلي: من الكاش إلى البنك" : "Internal Transfer: Cash → Bank";
+                    transferNoticeDesc.textContent = currentLang === 'ar' ? "سيتم خصم المبلغ من الكاش وإضافته للحساب البنكي." : "Deducts from Cash and adds to Bank Account.";
+                    clientLabel.textContent = currentLang === 'ar' ? 'اسم البنك / الفرع' : 'Bank / Branch';
+                    clientNameInput.placeholder = "Optional details";
+                    clientNameInput.required = false;
+                } else {
+                    clientLabel.textContent = currentLang === 'ar' ? 'مصدر الإيراد / الجهة' : 'Income Source / Payer';
+                    clientNameInput.placeholder = currentLang === 'ar' ? "أدخل مصدر المبلغ (اختياري)" : "Source (optional)";
+                    clientNameInput.required = false;
+                }
+            } else {
+                clientFieldContainer.classList.remove('hidden');
+                clientLabel.textContent = currentLang === 'ar' ? 'الجهة / اسم المتجر (اختياري)' : 'Merchant / Store (Optional)';
+                clientNameInput.placeholder = currentLang === 'ar' ? "مثال: كارفور / سوبر ماركت" : "e.g. Carrefour Market";
+                clientNameInput.required = false;
+            }
+        }
+
+        // Category Manager Modal Functions
+        function openCategoryManager() {
+            renderCategoriesList();
+            const modal = document.getElementById('categoryManagerModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCategoryManager() {
+            const modal = document.getElementById('categoryManagerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            loadCategories();
+        }
+
+        function renderCategoriesList() {
+            const listContainer = document.getElementById('customCategoriesList');
+            listContainer.innerHTML = '';
+            
+            personalExpenseCategories.forEach((cat, index) => {
+                const li = document.createElement('li');
+                li.className = "flex items-center justify-between px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-dark-surface-container-low transition";
+                li.innerHTML = `
+                    <span class="font-semibold text-slate-700 dark:text-dark-on-surface">${escapeHtml(cat)}</span>
+                    <button onclick="removeCategory(${index})" class="text-rose-500 dark:text-dark-error hover:opacity-80 p-1" title="Delete">
+                        <span class="material-symbols-outlined text-base">delete</span>
+                    </button>
+                `;
+                listContainer.appendChild(li);
+            });
+        }
+
+        function addNewCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const val = input.value.trim();
+            if (!val) return;
+            if (personalExpenseCategories.includes(val)) {
+                showToast("Category already exists / التصنيف موجود بالفعل", "error");
+                return;
+            }
+            personalExpenseCategories.push(val);
+            localStorage.setItem('personal_app_personal_expense_categories', JSON.stringify(personalExpenseCategories));
+            if (window.syncSettingsToCloud) window.syncSettingsToCloud();
+            input.value = '';
+            renderCategoriesList();
+            showToast("Category added / تمت الإضافة", "success");
+        }
+
+        function removeCategory(index) {
+            if (personalExpenseCategories.length <= 1) {
+                showToast("At least one category is required", "error");
+                return;
+            }
+            personalExpenseCategories.splice(index, 1);
+            localStorage.setItem('personal_app_personal_expense_categories', JSON.stringify(personalExpenseCategories));
+            if (window.syncSettingsToCloud) window.syncSettingsToCloud();
+            renderCategoriesList();
+            showToast("Category removed / تم الحذف", "info");
+        }
+
+        // Handle Form Submit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editId').value;
+            const clientName = document.getElementById('clientName').value.trim();
+            const amount = Math.round(parseFloat(document.getElementById('amount').value));
+            const category = document.getElementById('category').value;
+            const expenseDate = document.getElementById('expenseDate').value;
+            const notes = document.getElementById('notes').value.trim();
+            const entryType = document.querySelector('input[name="entryType"]:checked').value;
+            
+            let paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cash';
+            let isTransferToCash = false;
+            let isTransferFromCashToWallet = false;
+            let isTransferFromCashToBank = false;
+
+            if (entryType === 'income') {
+                if (category === "سحب من البنك / ATM") {
+                    paymentMethod = 'bank';
+                    isTransferToCash = true;
+                } else if (category === "سحب من محفظة إلكترونية" || category === "تحويل كاش إلكتروني") {
+                    paymentMethod = 'ewallet';
+                    isTransferToCash = true;
+                } else if (category === "تحويل من الكاش إلى المحفظة الإلكترونية") {
+                    paymentMethod = 'cash';
+                    isTransferFromCashToWallet = true;
+                } else if (category === "تحويل من الكاش إلى الحساب البنكي") {
+                    paymentMethod = 'cash';
+                    isTransferFromCashToBank = true;
+                }
+            }
+
+            if (editId) {
+                const index = expenses.findIndex(item => item.id === editId);
+                if (index !== -1) {
+                    expenses[index] = {
+                        ...expenses[index],
+                        entryType,
+                        paymentMethod,
+                        isTransferToCash,
+                        isTransferFromCashToWallet,
+                        isTransferFromCashToBank,
+                        clientName,
+                        amount,
+                        category,
+                        expenseDate,
+                        notes,
+                        updatedAt: new Date().toISOString()
+                    };
+                    if (window.upsertCloudTransaction) window.upsertCloudTransaction(expenses[index], false);
+                    showToast(currentLang === 'ar' ? 'تم تعديل المعاملة بنجاح' : 'Transaction updated', 'success');
+                }
+            } else {
+                const newItem = {
+                    id: Date.now().toString(),
+                    type: 'personal',
+                    entryType,
+                    paymentMethod,
+                    isTransferToCash,
+                    isTransferFromCashToWallet,
+                    isTransferFromCashToBank,
+                    clientName,
+                    amount,
+                    category,
+                    expenseDate,
+                    notes,
+                    createdAt: new Date().toISOString()
+                };
+                expenses.unshift(newItem);
+                if (window.upsertCloudTransaction) window.upsertCloudTransaction(newItem, false);
+                showToast(currentLang === 'ar' ? 'تم حفظ المعاملة بنجاح' : 'Transaction saved', 'success');
+            }
+
+            saveData();
+            resetForm();
+            renderApp();
+            if (!editId) checkBudgetAlert(category, entryType, expenseDate);
+        }
+
+        function saveData() {
+            localStorage.setItem('personal_app_expenses_v3', JSON.stringify(expenses));
+            localStorage.setItem('personal_app_trash_expenses_v3', JSON.stringify(trashExpenses));
+            if (window.syncSettingsToCloud) window.syncSettingsToCloud();
+        }
+
+        // Payment Method Badges
+        function getPaymentMethodBadge(item) {
+            if (item.isTransferToCash || (item.entryType === 'income' && (item.category === "سحب من البنك / ATM" || item.category === "سحب من محفظة إلكترونية" || item.category === "تحويل كاش إلكتروني"))) {
+                const fromLabel = (item.paymentMethod === 'bank' || item.category === "سحب من البنك / ATM") ? 'Bank' : 'Wallet';
+                return `<span class="inline-flex items-center gap-1 bg-amber-100 dark:bg-warning-container text-amber-800 dark:text-on-warning-container text-[10px] font-bold px-2 py-0.5 rounded-full">→ Cash (${fromLabel})</span>`;
+            }
+            if (item.isTransferFromCashToWallet || item.category === "تحويل من الكاش إلى المحفظة الإلكترونية") {
+                return `<span class="inline-flex items-center gap-1 bg-sky-100 dark:bg-dark-secondary-container text-sky-800 dark:text-dark-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded-full">Cash → Wallet</span>`;
+            }
+            if (item.isTransferFromCashToBank || item.category === "تحويل من الكاش إلى الحساب البنكي") {
+                return `<span class="inline-flex items-center gap-1 bg-cyan-100 dark:bg-info-container text-cyan-800 dark:text-on-info-container text-[10px] font-bold px-2 py-0.5 rounded-full">Cash → Bank</span>`;
+            }
+
+            const m = item.paymentMethod || 'cash';
+            if (m === 'ewallet') {
+                return `<span class="text-slate-600 dark:text-dark-on-surface-variant font-semibold text-xs">${currentLang === 'ar' ? 'محفظة' : 'E-Wallet'}</span>`;
+            } else if (m === 'bank') {
+                return `<span class="text-slate-600 dark:text-dark-on-surface-variant font-semibold text-xs">${currentLang === 'ar' ? 'بنك' : 'Bank'}</span>`;
+            }
+            return `<span class="text-slate-600 dark:text-dark-on-surface-variant font-semibold text-xs">${currentLang === 'ar' ? 'كاش' : 'Cash'}</span>`;
+        }
+
+        // Automatic Balances Calculation
+        function updateWalletBalance() {
+            const walletEl = document.getElementById('walletBalance');
+            const ewalletEl = document.getElementById('eWalletBalance');
+            const bankEl = document.getElementById('bankBalance');
+            const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+
+            if (!areBalancesVisible) {
+                const baseCls = "text-2xl font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums mt-1";
+                walletEl.innerHTML = `••••• <span class="text-xs font-bold opacity-75">${curr}</span>`;
+                walletEl.className = baseCls;
+                ewalletEl.innerHTML = `••••• <span class="text-xs font-bold opacity-75">${curr}</span>`;
+                ewalletEl.className = baseCls;
+                bankEl.innerHTML = `••••• <span class="text-xs font-bold opacity-75">${curr}</span>`;
+                bankEl.className = baseCls;
+                return;
+            }
+
+            let cashIn = 0, cashOut = 0;
+            let ewalletIn = 0, ewalletOut = 0;
+            let bankIn = 0, bankOut = 0;
+
+            expenses.filter(i => i.type === 'personal').forEach(item => {
+                const amt = Math.round(item.amount);
+                const method = item.paymentMethod || 'cash';
+                const isIncome = item.entryType === 'income';
+                const isWithdrawalToCash = item.isTransferToCash || (isIncome && (item.category === "سحب من البنك / ATM" || item.category === "سحب من محفظة إلكترونية" || item.category === "تحويل كاش إلكتروني"));
+                const isToWallet = item.isTransferFromCashToWallet || item.category === "تحويل من الكاش إلى المحفظة الإلكترونية";
+                const isToBank = item.isTransferFromCashToBank || item.category === "تحويل من الكاش إلى الحساب البنكي";
+
+                if (isWithdrawalToCash) {
+                    if (method === 'bank' || item.category === "سحب من البنك / ATM") bankOut += amt;
+                    else ewalletOut += amt;
+                    cashIn += amt;
+                } else if (isToWallet) {
+                    cashOut += amt;
+                    ewalletIn += amt;
+                } else if (isToBank) {
+                    cashOut += amt;
+                    bankIn += amt;
+                } else if (method === 'ewallet') {
+                    if (isIncome) ewalletIn += amt; else ewalletOut += amt;
+                } else if (method === 'bank') {
+                    if (isIncome) bankIn += amt; else bankOut += amt;
+                } else {
+                    if (isIncome) cashIn += amt; else cashOut += amt;
+                }
+            });
+
+            const renderBal = (el, val) => {
+                el.innerHTML = `${val.toLocaleString('en-US')} <span class="text-xs font-bold opacity-75">${curr}</span>`;
+                el.className = val < 0
+                    ? "text-2xl font-extrabold text-rose-600 dark:text-dark-error tabular-nums mt-1"
+                    : "text-2xl font-extrabold text-slate-900 dark:text-dark-on-surface tabular-nums mt-1";
+            };
+
+            renderBal(walletEl, Math.round(cashIn - cashOut));
+            renderBal(ewalletEl, Math.round(ewalletIn - ewalletOut));
+            renderBal(bankEl, Math.round(bankIn - bankOut));
+        }
+
+        function renderApp() {
+            updateWalletBalance();
+            const personalTrashCount = trashExpenses.filter(i => i.type === 'personal').length;
+            document.getElementById('trashCountBadge').textContent = personalTrashCount;
+            applyFilters();
+        }
+
+        function editExpense(id) {
+            const item = expenses.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('editId').value = item.id;
+            document.getElementsByName('entryType').forEach(r => {
+                r.checked = (r.value === (item.entryType || 'expense'));
+            });
+            loadCategories();
+
+            document.getElementById('clientName').value = item.clientName || '';
+            document.getElementById('amount').value = Math.round(item.amount);
+            document.getElementById('category').value = item.category;
+            handleCategoryChange();
+
+            document.getElementsByName('paymentMethod').forEach(r => {
+                r.checked = (r.value === (item.paymentMethod || 'cash'));
+            });
+
+            document.getElementById('expenseDate').value = item.expenseDate;
+            document.getElementById('notes').value = item.notes || '';
+
+            const dict = I18N[currentLang] || I18N.en;
+            document.getElementById('submitBtnText').textContent = dict.btnUpdateTx;
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function promptDeleteExpense(id) {
+            document.getElementById('deleteTargetId').value = id;
+            const modal = document.getElementById('deleteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('deleteTargetId').value = '';
+        }
+
+        function confirmDelete() {
+            const id = document.getElementById('deleteTargetId').value;
+            if (id) {
+                const itemIndex = expenses.findIndex(i => i.id === id);
+                if (itemIndex !== -1) {
+                    const deletedItem = expenses.splice(itemIndex, 1)[0];
+                    trashExpenses.unshift(deletedItem);
+                    if (window.upsertCloudTransaction) window.upsertCloudTransaction(deletedItem, true);
+                    saveData();
+                    renderApp();
+                    showToast(currentLang === 'ar' ? 'تم النقل لسلة المحذوفات' : 'Moved to trash bin', 'info');
+                }
+            }
+            closeDeleteModal();
+        }
+
+        function openTrashModal() {
+            renderTrashTable();
+            const modal = document.getElementById('trashModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeTrashModal() {
+            const modal = document.getElementById('trashModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function renderTrashTable() {
+            const tbody = document.getElementById('trashTableBody');
+            const emptyState = document.getElementById('trashEmptyState');
+            tbody.innerHTML = '';
+            const personalTrash = trashExpenses.filter(i => i.type === 'personal');
+            document.getElementById('trashCountBadge').textContent = personalTrash.length;
+
+            if (personalTrash.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            personalTrash.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 dark:hover:bg-dark-surface-container-low transition';
+                const isIncome = item.entryType === 'income';
+                const roundedAmount = Math.round(item.amount);
+                const amountBadge = isIncome
+                    ? `<span class="text-emerald-600 dark:text-on-success-container font-bold tabular-nums">+${roundedAmount.toLocaleString('en-US')}</span>`
+                    : `<span class="text-rose-600 dark:text-dark-error font-bold tabular-nums">-${roundedAmount.toLocaleString('en-US')}</span>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 text-slate-500 dark:text-dark-on-surface-variant tabular-nums">${item.expenseDate}</td>
+                    <td class="py-3 px-3 font-semibold text-slate-800 dark:text-dark-on-surface">${escapeHtml(item.clientName || '-')}</td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-dark-surface-container text-xs">${escapeHtml(item.category)}</span></td>
+                    <td class="py-3 px-3">${amountBadge}</td>
+                    <td class="py-3 px-3 text-center whitespace-nowrap">
+                        <button onclick="restoreExpense('${item.id}')" class="bg-emerald-600 dark:bg-success text-white dark:text-on-success px-2.5 py-1 rounded-lg text-[11px] font-bold mr-1">Restore</button>
+                        <button onclick="deleteForever('${item.id}')" class="bg-rose-600 dark:bg-dark-error text-white dark:text-dark-on-error px-2.5 py-1 rounded-lg text-[11px] font-bold">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function restoreExpense(id) {
+            const index = trashExpenses.findIndex(i => i.id === id);
+            if (index !== -1) {
+                const restoredItem = trashExpenses.splice(index, 1)[0];
+                expenses.unshift(restoredItem);
+                if (window.upsertCloudTransaction) window.upsertCloudTransaction(restoredItem, false);
+                saveData();
+                renderApp();
+                renderTrashTable();
+                showToast('Transaction restored / تم الاسترجاع', 'success');
+            }
+        }
+
+        function deleteForever(id) {
+            if (confirm("Permanently delete this transaction? / حذف نهائي؟")) {
+                trashExpenses = trashExpenses.filter(i => i.id !== id);
+                if (window.deleteCloudTransaction) window.deleteCloudTransaction(id);
+                saveData();
+                renderApp();
+                renderTrashTable();
+                showToast('Permanently deleted', 'info');
+            }
+        }
+
+        function clearTrashPermanently() {
+            const personalTrash = trashExpenses.filter(i => i.type === 'personal');
+            if (personalTrash.length === 0) return;
+            if (confirm("Empty trash permanently? / إفراغ السلة نهائياً؟")) {
+                const idsToDelete = personalTrash.map(i => i.id);
+                trashExpenses = trashExpenses.filter(i => i.type !== 'personal');
+                if (window.deleteManyCloudTransactions) window.deleteManyCloudTransactions(idsToDelete);
+                saveData();
+                renderApp();
+                renderTrashTable();
+                showToast('Trash emptied', 'info');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('expenseDate').value = todayStr();
+            const defaultRadio = document.querySelector('input[name="entryType"][value="expense"]');
+            if (defaultRadio) defaultRadio.checked = true;
+            const defaultMethod = document.querySelector('input[name="paymentMethod"][value="cash"]');
+            if (defaultMethod) defaultMethod.checked = true;
+            loadCategories();
+            const dict = I18N[currentLang] || I18N.en;
+            document.getElementById('submitBtnText').textContent = dict.btnSaveTx;
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+        }
+
+        function getPaymentMethodName(item) {
+            const m = item.paymentMethod || 'cash';
+            if (m === 'ewallet') return 'E-Wallet';
+            if (m === 'bank') return 'Bank';
+            return 'Cash';
+        }
+
+        function exportToPDF() {
+            const filtered = expenses.filter(item => item.type === 'personal');
+            if (filtered.length === 0) {
+                showToast("No data to export / لا توجد بيانات", "error");
+                return;
+            }
+            document.getElementById('printReportDate').textContent = new Date().toLocaleDateString('en-US');
+            visibleLimit = Infinity; renderList();
+            const element = document.getElementById('printableContent');
+            const opt = {
+                margin: [0.4, 0.4, 0.4, 0.4],
+                filename: `Feloosy_Report_${todayStr()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save().then(() => {
+                visibleLimit = PAGE_SIZE; renderList();
+                showToast("PDF exported / تم تحميل التقرير", "success");
+            });
+        }
+
+        function toggleReminderModal() {
+            const modal = document.getElementById('reminderModal');
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+
+        function enableNotification() {
+            if (!("Notification" in window)) {
+                showToast("Notifications not supported", "error");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    const timeVal = document.getElementById('reminderTime').value || "22:00";
+                    localStorage.setItem('personal_app_reminder_time', timeVal);
+                    setupBrowserReminder(timeVal);
+                    document.getElementById('reminderStatus').textContent = `Active (${timeVal})`;
+                    showToast("Daily reminder enabled", "success");
+                }
+            });
+        }
+
+        function checkSavedReminder() {
+            const savedTime = localStorage.getItem('personal_app_reminder_time');
+            if (savedTime && "Notification" in window && Notification.permission === "granted") {
+                document.getElementById('reminderTime').value = savedTime;
+                document.getElementById('reminderStatus').textContent = `Active (${savedTime})`;
+                setupBrowserReminder(savedTime);
+            }
+        }
+
+        function setupBrowserReminder(timeStr) {
+            if (reminderInterval) clearInterval(reminderInterval);
+            reminderInterval = setInterval(() => {
+                const now = new Date();
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                if (now.getHours() === hours && now.getMinutes() === minutes && now.getSeconds() < 10) {
+                    new Notification("Feloosy Daily Reminder", {
+                        body: "Remember to log today's expenses & balances!"
+                    });
+                }
+            }, 10000);
+        }
+
+        function downloadCalendarICS() {
+            const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Feloosy App//EN\nBEGIN:VEVENT\nSUMMARY:Log Daily Expenses - Feloosy\nRRULE:FREQ=DAILY\nUID:feloosy-daily@feloosy.app\nDTSTAMP:20261101T000000Z\nDTSTART;TZID=Africa/Cairo:20261124T220000\nDURATION:PT15M\nEND:VEVENT\nEND:VCALENDAR`;
+            const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.setAttribute('download', 'feloosy_reminder.ics');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("Calendar file downloaded", "success");
+        }
+
+        let toastTimer = null;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            toastMessage.textContent = message;
+            toastIcon.textContent = type === 'error' ? 'error' : (type === 'info' ? 'info' : 'check_circle');
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+
+        async function triggerImportFile() {
+            if ('showOpenFilePicker' in window) {
+                try {
+                    const [fileHandle] = await window.showOpenFilePicker({
+                        types: [{ description: 'JSON Backup File', accept: { 'application/json': ['.json'] } }],
+                        multiple: false
+                    });
+                    const file = await fileHandle.getFile();
+                    processImportedJSON(await file.text());
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                }
+            }
+            document.getElementById('importFileInput').click();
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                processImportedJSON(e.target.result);
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // ================= Core Data & Analytics Logic =================
+        const PAGE_SIZE = 50;
+        const BACKUP_KEY = 'personal_app_last_backup';
+        let visibleLimit = PAGE_SIZE;
+        let sortMode = 'date_desc';
+        let quickClient = '';
+        const fmt = n => Math.round(n).toLocaleString('en-US');
+        const INTERNAL_CATS = ["سحب من البنك / ATM", "سحب من محفظة إلكترونية", "تحويل كاش إلكتروني", "تحويل من الكاش إلى المحفظة الإلكترونية", "تحويل من الكاش إلى الحساب البنكي"];
+
+        function localISO(d) {
+            return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+        }
+        function todayStr() { return localISO(new Date()); }
+
+        function isInternalTransfer(i) {
+            return !!(i.isTransferToCash || i.isTransferFromCashToWallet || i.isTransferFromCashToBank || INTERNAL_CATS.includes(i.category));
+        }
+
+        function getFiltered() {
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            const s = document.getElementById('filterStartDate').value;
+            const e = document.getElementById('filterEndDate').value;
+            const t = document.getElementById('filterType').value;
+            const c = document.getElementById('filterCategory').value;
+            let list = expenses.filter(i => i.type === 'personal');
+            if (q) list = list.filter(i => [i.clientName, i.notes, i.category].some(v => v && String(v).toLowerCase().includes(q)));
+            if (quickClient) list = list.filter(i => i.clientName === quickClient);
+            if (s) list = list.filter(i => i.expenseDate >= s);
+            if (e) list = list.filter(i => i.expenseDate <= e);
+            if (t === 'expense') list = list.filter(i => i.entryType !== 'income');
+            if (t === 'income') list = list.filter(i => i.entryType === 'income' && !isInternalTransfer(i));
+            if (t === 'transfer') list = list.filter(isInternalTransfer);
+            if (c) list = list.filter(i => i.category === c);
+            const dir = sortMode.endsWith('asc') ? 1 : -1;
+            list.sort((a, b) => sortMode.startsWith('amount')
+                ? (a.amount - b.amount) * dir
+                : ((a.expenseDate || '').localeCompare(b.expenseDate || '') || (a.createdAt || '').localeCompare(b.createdAt || '')) * dir);
+            return list;
+        }
+
+        function refreshFilterOptions() {
+            const tabItems = expenses.filter(i => i.type === 'personal');
+            const cats = [...new Set(tabItems.map(i => i.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
+            const sel = document.getElementById('filterCategory');
+            const sig = cats.join('|');
+            if (sel.dataset.sig !== sig) {
+                const cur = sel.value;
+                sel.innerHTML = '<option value="">All Categories / كل التصنيفات</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+                sel.value = cats.includes(cur) ? cur : '';
+                sel.dataset.sig = sig;
+            }
+            const names = [...new Set(tabItems.map(i => i.clientName).filter(Boolean))];
+            document.getElementById('clientsList').innerHTML = names.map(n => `<option value="${escapeHtml(n)}">`).join('');
+        }
+
+        function applyFilters() {
+            refreshFilterOptions();
+            visibleLimit = PAGE_SIZE;
+            renderList();
+        }
+
+        function loadMore() { visibleLimit += PAGE_SIZE; renderList(); }
+
+        function filterByClient(name) {
+            quickClient = name || '';
+            applyFilters();
+        }
+
+        function setQuickRange(k) {
+            const d = new Date(), y = d.getFullYear(), m = d.getMonth();
+            let s = '', e = '';
+            if (k === 'today') { s = e = localISO(d); }
+            else if (k === 'month') { s = localISO(new Date(y, m, 1)); e = localISO(new Date(y, m + 1, 0)); }
+            else if (k === 'lastMonth') { s = localISO(new Date(y, m - 1, 1)); e = localISO(new Date(y, m, 0)); }
+            else if (k === 'year') { s = localISO(new Date(y, 0, 1)); e = localISO(new Date(y, 11, 31)); }
+            document.getElementById('filterStartDate').value = s;
+            document.getElementById('filterEndDate').value = e;
+            applyFilters();
+        }
+
+        function resetFilters() {
+            ['searchInput', 'filterStartDate', 'filterEndDate', 'filterType', 'filterCategory'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('sortSelect').value = 'date_desc';
+            sortMode = 'date_desc';
+            quickClient = '';
+            applyFilters();
+        }
+
+        function renderList() {
+            const list = getFiltered();
+            renderStats(list);
+            renderInsights(list);
+            renderPro();
+
+            const tbody = document.getElementById('expenseTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const more = document.getElementById('loadMoreWrap');
+            tbody.innerHTML = '';
+            document.getElementById('clientFilterChip').classList.toggle('hidden', !quickClient);
+            document.getElementById('clientFilterName').textContent = quickClient;
+
+            if (!list.length) {
+                emptyState.classList.remove('hidden');
+                more.classList.add('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+            const shown = list.slice(0, visibleLimit);
+            shown.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 dark:hover:bg-dark-surface-container-low transition-colors';
+                const isIncome = item.entryType === 'income';
+                const amt = fmt(item.amount);
+                const amountBadge = isIncome
+                    ? `<span class="font-bold text-emerald-600 dark:text-on-success-container tabular-nums">+ ${amt} ${curr}</span>`
+                    : `<span class="font-bold text-rose-600 dark:text-dark-error tabular-nums">- ${amt} ${curr}</span>`;
+                const catPillClass = isIncome
+                    ? 'bg-emerald-100 dark:bg-success-container text-emerald-800 dark:text-on-success-container'
+                    : 'bg-rose-100 dark:bg-dark-error-container text-rose-800 dark:text-dark-on-error-container';
+                const partyLabel = item.clientName || item.notes || '-';
+                const clientTd = item.clientName
+                    ? `<td class="py-3 px-4"><button type="button" data-client="${escapeHtml(item.clientName)}" onclick="filterByClient(this.dataset.client)" class="font-semibold text-slate-900 dark:text-dark-on-surface hover:text-[#006591] dark:hover:text-dark-primary hover:underline text-left">${escapeHtml(item.clientName)}</button></td>`
+                    : `<td class="py-3 px-4 font-semibold text-slate-700 dark:text-dark-on-surface">${escapeHtml(partyLabel)}</td>`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-slate-500 dark:text-dark-on-surface-variant whitespace-nowrap tabular-nums">${escapeHtml(item.expenseDate)}</td>
+                    ${clientTd}
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="inline-block font-bold text-[11px] px-2.5 py-0.5 rounded-full ${catPillClass}">${escapeHtml(item.category)}</span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap">${getPaymentMethodBadge(item)}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${amountBadge}</td>
+                    <td class="py-3 px-4 text-center whitespace-nowrap no-print">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="duplicateExpense('${item.id}')" title="Duplicate" class="p-1 rounded text-slate-500 dark:text-dark-on-surface-variant hover:text-emerald-600 dark:hover:text-on-success-container hover:bg-slate-100 dark:hover:bg-dark-surface-container">
+                                <span class="material-symbols-outlined text-base">content_copy</span>
+                            </button>
+                            <button onclick="editExpense('${item.id}')" title="Edit" class="p-1 rounded text-slate-500 dark:text-dark-on-surface-variant hover:text-[#006591] dark:hover:text-dark-primary hover:bg-slate-100 dark:hover:bg-dark-surface-container">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </button>
+                            <button onclick="promptDeleteExpense('${item.id}')" title="Delete" class="p-1 rounded text-slate-500 dark:text-dark-on-surface-variant hover:text-rose-600 dark:hover:text-dark-error hover:bg-rose-50 dark:hover:bg-dark-error-container">
+                                <span class="material-symbols-outlined text-base">delete</span>
+                            </button>
+                        </div>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+
+            const rest = list.length - shown.length;
+            more.classList.toggle('hidden', rest <= 0);
+            document.getElementById('loadMoreCount').textContent = rest;
+        }
+
+        function renderStats(dataList) {
+            const real = dataList.filter(i => !isInternalTransfer(i));
+            const totalExpense = Math.round(real.filter(i => i.entryType !== 'income').reduce((s, i) => s + i.amount, 0));
+            const totalIncome = Math.round(real.filter(i => i.entryType === 'income').reduce((s, i) => s + i.amount, 0));
+            const net = totalIncome - totalExpense;
+            const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+            const unit = `<span class="text-xs font-semibold opacity-75">${curr}</span>`;
+
+            document.getElementById('statTotalAmount').innerHTML = `${fmt(totalExpense)} ${unit}`;
+            document.getElementById('statIncomeAmount').innerHTML = `${fmt(totalIncome)} ${unit}`;
+            const netEl = document.getElementById('statNetAmount');
+            netEl.innerHTML = `${net < 0 ? '- ' : '+ '}${fmt(Math.abs(net))} ${unit}`;
+            netEl.className = 'text-lg font-extrabold tabular-nums ' + (net < 0 ? 'text-rose-600 dark:text-dark-error' : 'text-emerald-600 dark:text-on-success-container');
+            document.getElementById('statSecondaryCount').textContent = `${dataList.length} ${currentLang === 'ar' ? 'معاملة' : 'Entries'}`;
+        }
+
+        function renderInsights(list) {
+            const exp = list.filter(i => i.entryType !== 'income' && !isInternalTransfer(i));
+            const total = exp.reduce((s, i) => s + i.amount, 0);
+            const byCat = {};
+            exp.forEach(i => byCat[i.category] = (byCat[i.category] || 0) + i.amount);
+            const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+            const barColors = ['bg-[#006591] dark:bg-dark-primary', 'bg-sky-500 dark:bg-info', 'bg-amber-500 dark:bg-warning', 'bg-rose-500 dark:bg-dark-error'];
+
+            document.getElementById('categoryBars').innerHTML = cats.length ? cats.map(([c, v], idx) => {
+                const p = total ? Math.round(v / total * 100) : 0;
+                return `<div class="flex flex-col gap-1">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-slate-700 dark:text-dark-on-surface font-medium">${escapeHtml(c)}</span>
+                        <span class="font-bold text-slate-900 dark:text-dark-on-surface tabular-nums">${fmt(v)} ${curr} (${p}%)</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-dark-surface-container">
+                        <div class="h-2 rounded-full ${barColors[idx % barColors.length]}" style="width:${p}%"></div>
+                    </div>
+                </div>`;
+            }).join('') : `<p class="text-xs text-slate-400 dark:text-dark-on-surface-variant">${currentLang === 'ar' ? 'لا توجد مصروفات في النتائج الحالية' : 'No expenses in current view'}</p>`;
+
+            const now = new Date();
+            const months = [];
+            for (let k = 5; k >= 0; k--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - k, 1);
+                months.push({
+                    key: localISO(d).slice(0, 7),
+                    label: d.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short' }),
+                    inc: 0,
+                    exp: 0
+                });
+            }
+            expenses.filter(i => i.type === 'personal' && !isInternalTransfer(i)).forEach(i => {
+                const m = months.find(x => x.key === (i.expenseDate || '').slice(0, 7));
+                if (!m) return;
+                if (i.entryType === 'income') m.inc += i.amount; else m.exp += i.amount;
+            });
+            const max = Math.max(1, ...months.map(m => Math.max(m.inc, m.exp)));
+            const h = v => v ? Math.max(4, Math.round(v / max * 100)) : 0;
+            document.getElementById('monthlyBars').innerHTML = months.map(m =>
+                `<div class="flex-1 flex flex-col items-center gap-1">
+                    <div class="flex items-end gap-1 h-20 w-full justify-center">
+                        <div title="Income: ${fmt(m.inc)}" class="w-2.5 bg-emerald-500 dark:bg-success rounded-t" style="height:${h(m.inc)}%"></div>
+                        <div title="Expense: ${fmt(m.exp)}" class="w-2.5 bg-rose-500 dark:bg-dark-error rounded-t" style="height:${h(m.exp)}%"></div>
+                    </div>
+                    <span class="text-[10px] text-slate-500 dark:text-dark-on-surface-variant">${m.label}</span>
+                </div>`
+            ).join('');
+        }
+
+        function exportToExcel() {
+            const list = getFiltered();
+            if (!list.length) { showToast("No data to export", "error"); return; }
+            const rows = list.map((item, idx) => ({
+                "#": idx + 1,
+                "Date": item.expenseDate,
+                "Type": item.entryType === 'income' ? "Income / Transfer" : "Expense",
+                "Merchant / Party": item.clientName || '-',
+                "Category": item.category,
+                "Method": getPaymentMethodName(item),
+                "Amount (EGP)": Math.round(item.amount),
+                "Notes": item.notes || '-'
+            }));
+            const ws = XLSX.utils.json_to_sheet(rows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+            XLSX.writeFile(wb, `Feloosy_${todayStr()}.xlsx`);
+            showToast("Excel exported / تم التصدير", "success");
+        }
+
+        function buildBackup() {
+            return {
+                app: 'floosy', version: 4, exportedAt: new Date().toISOString(),
+                expenses, trash: trashExpenses,
+                categories: { personal: personalExpenseCategories }, budgets
+            };
+        }
+
+        function updateBackupBanner() {
+            const el = document.getElementById('backupBanner');
+            if (!el) return;
+            const last = Number(localStorage.getItem(BACKUP_KEY)) || 0;
+            const days = last ? Math.floor((Date.now() - last) / 864e5) : null;
+            const need = expenses.length > 0 && (days === null || days >= 7);
+            el.classList.toggle('hidden', !need);
+            if (need) {
+                document.getElementById('backupBannerText').textContent = days === null
+                    ? 'No backup taken yet. Download a backup file to keep your data safe.'
+                    : `Last backup was ${days} days ago.`;
+            }
+        }
+
+        async function triggerExportFile() {
+            if (!expenses.length && !trashExpenses.length) { showToast("No data to backup", "error"); return; }
+            const dataStr = JSON.stringify(buildBackup(), null, 2);
+            const filename = `Feloosy_Backup_${todayStr()}.json`;
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            localStorage.setItem(BACKUP_KEY, String(Date.now()));
+            updateBackupBanner();
+            showToast("Backup downloaded / تم التنزيل", "success");
+        }
+
+        function sanitizeItems(arr) {
+            const out = [], seen = new Set();
+            (Array.isArray(arr) ? arr : []).forEach((i, idx) => {
+                if (!i || typeof i !== 'object') return;
+                const amount = Math.round(Number(i.amount));
+                if (!isFinite(amount) || amount <= 0) return;
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(i.expenseDate || '')) return;
+                let id = String(i.id || '').replace(/[^\w-]/g, '');
+                if (!id || seen.has(id)) id = Date.now().toString() + idx + Math.random().toString(36).slice(2, 6);
+                seen.add(id);
+                out.push({
+                    ...i, id, amount,
+                    type: 'personal',
+                    entryType: i.entryType === 'income' ? 'income' : 'expense',
+                    paymentMethod: ['cash', 'ewallet', 'bank'].includes(i.paymentMethod) ? i.paymentMethod : 'cash',
+                    clientName: String(i.clientName || ''), category: String(i.category || 'أخرى'), notes: String(i.notes || '')
+                });
+            });
+            return out;
+        }
+
+        function processImportedJSON(jsonText) {
+            try {
+                const data = JSON.parse(jsonText);
+                const isLegacy = Array.isArray(data);
+                const raw = isLegacy ? data : (data && data.expenses);
+                if (!Array.isArray(raw)) throw new Error('invalid');
+                const items = sanitizeItems(raw);
+                if (!confirm(`Replace current ${expenses.length} transactions with ${items.length} from backup?`)) return;
+
+                expenses = items;
+                if (!isLegacy) {
+                    trashExpenses = sanitizeItems(data.trash);
+                    const c = data.categories || {};
+                    if (Array.isArray(c.personal) && c.personal.length) personalExpenseCategories = c.personal;
+                    if (data.budgets && typeof data.budgets === 'object') {
+                        budgets = data.budgets;
+                        localStorage.setItem('personal_app_budgets', JSON.stringify(budgets));
+                    }
+                }
+                localStorage.setItem('personal_app_personal_expense_categories', JSON.stringify(personalExpenseCategories));
+                saveData();
+                if (window.bulkSyncAllToCloud) window.bulkSyncAllToCloud();
+                loadCategories();
+                renderApp();
+                showToast(`Restored ${items.length} transactions`, "success");
+            } catch (err) {
+                showToast("Invalid backup file", "error");
+            }
+        }
+
+        const SNAP_KEY = 'personal_app_daily_snapshots';
+        function getSnapshots() {
+            try { return JSON.parse(localStorage.getItem(SNAP_KEY)) || []; } catch (e) { return []; }
+        }
+        function takeDailySnapshot() {
+            if (!expenses.length && !trashExpenses.length) return;
+            const today = todayStr();
+            let snaps = getSnapshots();
+            if (snaps.some(x => x.date === today)) return;
+            snaps.unshift({ date: today, count: expenses.length, data: JSON.stringify(buildBackup()) });
+            snaps = snaps.slice(0, 7);
+            try { localStorage.setItem(SNAP_KEY, JSON.stringify(snaps)); } catch (e) {}
+        }
+        function openSnapshotsModal() {
+            const ul = document.getElementById('snapshotsList');
+            const snaps = getSnapshots();
+            ul.innerHTML = snaps.length ? snaps.map((x, i) => `
+                <li class="flex items-center justify-between px-3 py-2.5">
+                    <span class="font-semibold text-slate-700 dark:text-dark-on-surface">${x.date} <span class="opacity-60">· ${x.count} items</span></span>
+                    <button onclick="restoreSnapshot(${i})" class="bg-[#006591] dark:bg-dark-primary text-white dark:text-dark-on-primary font-bold px-3 py-1 rounded-lg text-[11px]">Restore</button>
+                </li>`).join('') : '<li class="p-4 text-center opacity-60">No snapshots yet.</li>';
+            const m = document.getElementById('snapshotsModal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeSnapshotsModal() {
+            const m = document.getElementById('snapshotsModal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        function restoreSnapshot(i) {
+            const x = getSnapshots()[i];
+            if (!x) return;
+            closeSnapshotsModal();
+            processImportedJSON(x.data);
+        }
+        async function shareBackup() {
+            if (!expenses.length && !trashExpenses.length) { showToast("No data to share", "error"); return; }
+            const name = `Feloosy_Backup_${todayStr()}.json`;
+            const file = new File([JSON.stringify(buildBackup(), null, 2)], name, { type: 'text/plain' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({ files: [file], title: 'Feloosy Backup' });
+                    localStorage.setItem(BACKUP_KEY, String(Date.now()));
+                    updateBackupBanner();
+                } catch (err) {
+                    if (err.name !== 'AbortError') triggerExportFile();
+                }
+            } else {
+                triggerExportFile();
+            }
+        }
+
+        // Budgets & Month Comparison
+        let budgets = {};
+        try { budgets = JSON.parse(localStorage.getItem('personal_app_budgets')) || {}; } catch (e) { budgets = {}; }
+        const tabBudgets = () => budgets[currentTab] || {};
+
+        function sumMonth(key, income, cat) {
+            return expenses.filter(i => i.type === 'personal' && !isInternalTransfer(i)
+                && (i.expenseDate || '').slice(0, 7) === key
+                && (income ? i.entryType === 'income' : i.entryType !== 'income')
+                && (!cat || i.category === cat)).reduce((s, i) => s + i.amount, 0);
+        }
+
+        function changeBadge(cur, prev, upIsGood) {
+            if (!prev) return '';
+            const p = Math.round((cur - prev) / prev * 100);
+            if (p === 0) return '';
+            const good = (p > 0) === upIsGood;
+            return `<span class="text-[11px] font-bold ml-1.5 ${good ? 'text-emerald-600 dark:text-on-success-container' : 'text-rose-600 dark:text-dark-error'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
+        }
+
+        function renderPro() {
+            const now = new Date();
+            const cur = localISO(now).slice(0, 7);
+            const prev = localISO(new Date(now.getFullYear(), now.getMonth() - 1, 1)).slice(0, 7);
+            const curr = currentLang === 'ar' ? 'ج.م' : 'EGP';
+            const row = (label, c, p, good) => `<div>
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-semibold text-slate-600 dark:text-dark-on-surface-variant">${label}</span>
+                    <span class="font-bold text-slate-900 dark:text-dark-on-surface tabular-nums">${fmt(c)} ${curr}${changeBadge(c, p, good)}</span>
+                </div>
+                <div class="text-[11px] text-slate-400 dark:text-dark-outline tabular-nums">${currentLang === 'ar' ? 'الشهر الماضي:' : 'Last month:'} ${fmt(p)} ${curr}</div>
+            </div>`;
+            document.getElementById('monthCompareBody').innerHTML =
+                row(currentLang === 'ar' ? 'المصروفات' : 'Expenses', sumMonth(cur, false), sumMonth(prev, false), false) +
+                row(currentLang === 'ar' ? 'الإيرادات' : 'Income', sumMonth(cur, true), sumMonth(prev, true), true);
+
+            const entries = Object.entries(tabBudgets()).filter(([c, l]) => l > 0);
+            document.getElementById('budgetBody').innerHTML = entries.length ? entries.map(([c, l]) => {
+                const sp = sumMonth(cur, false, c), p = Math.round(sp / l * 100);
+                const col = p >= 100 ? 'bg-rose-600 dark:bg-dark-error' : p >= 80 ? 'bg-amber-500 dark:bg-warning' : 'bg-emerald-500 dark:bg-success';
+                return `<div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-xs">
+                        <span class="font-medium text-slate-700 dark:text-dark-on-surface">${escapeHtml(c)}</span>
+                        <span class="font-bold tabular-nums ${p >= 100 ? 'text-rose-600 dark:text-dark-error' : 'text-emerald-600 dark:text-on-success-container'}">${fmt(sp)} / ${fmt(l)} ${curr}</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-dark-surface-container">
+                        <div class="h-2 rounded-full ${col}" style="width:${Math.min(p, 100)}%"></div>
+                    </div>
+                </div>`;
+            }).join('') : `<p class="text-xs text-slate-400 dark:text-dark-on-surface-variant">${currentLang === 'ar' ? 'لم تحدد ميزانيات بعد. اضغط ضبط لتحديد حد شهري.' : 'No budgets configured yet. Click Configure to set limits.'}</p>`;
+        }
+
+        function openBudgetModal() {
+            const b = tabBudgets();
+            document.getElementById('budgetFields').innerHTML = personalExpenseCategories.map(c =>
+                `<label class="flex items-center justify-between gap-3 text-xs">
+                    <span class="font-semibold text-slate-700 dark:text-dark-on-surface">${escapeHtml(c)}</span>
+                    <input type="number" min="0" step="1" inputmode="numeric" data-cat="${escapeHtml(c)}" value="${b[c] || ''}" placeholder="No limit" class="w-28 px-2 py-1.5 text-xs bg-slate-50 dark:bg-dark-surface-container-low border border-slate-200 dark:border-dark-outline-variant rounded-lg text-slate-900 dark:text-dark-on-surface outline-none text-center tabular-nums">
+                </label>`
+            ).join('');
+            const m = document.getElementById('budgetModal');
+            m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function closeBudgetModal() {
+            const m = document.getElementById('budgetModal');
+            m.classList.add('hidden'); m.classList.remove('flex');
+        }
+        function saveBudgets() {
+            const nb = {};
+            document.querySelectorAll('#budgetFields input').forEach(inp => {
+                const v = Math.round(Number(inp.value));
+                if (v > 0) nb[inp.dataset.cat] = v;
+            });
+            budgets[currentTab] = nb;
+            localStorage.setItem('personal_app_budgets', JSON.stringify(budgets));
+            if (window.syncSettingsToCloud) window.syncSettingsToCloud();
+            closeBudgetModal();
+            renderApp();
+            showToast('Budgets saved / تم حفظ الميزانيات', 'success');
+        }
+
+        function checkBudgetAlert(category, entryType, date) {
+            if (entryType !== 'expense') return;
+            const limit = tabBudgets()[category];
+            if (!limit) return;
+            const spent = sumMonth((date || '').slice(0, 7), false, category);
+            if (spent > limit) showToast(`Budget exceeded for "${category}" (${fmt(spent)} / ${fmt(limit)})`, 'error');
+            else if (spent >= limit * 0.8) showToast(`Reached ${Math.round(spent / limit * 100)}% of "${category}" budget`, 'info');
+        }
+
+        function duplicateExpense(id) {
+            editExpense(id);
+            document.getElementById('editId').value = '';
+            document.getElementById('expenseDate').value = todayStr();
+            showToast('Duplicated to form / تم النسخ للنموذج', 'info');
+        }
+
+        // PWA Install
+        let deferredInstall = null;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredInstall = e;
+            const b = document.getElementById('installBtn');
+            if (b) { b.classList.remove('hidden'); b.classList.add('flex'); }
+        });
+        async function installApp() {
+            if (!deferredInstall) return;
+            deferredInstall.prompt();
+            await deferredInstall.userChoice;
+            deferredInstall = null;
+            document.getElementById('installBtn').classList.add('hidden');
+        }
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBackupBanner();
+            takeDailySnapshot();
+        });
+    </script>
+
+    <!-- Firebase SDK (Authentication + Cloud Firestore Realtime Sync) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, writeBatch, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC26wxSLt14u6Oqn8nbwAXg62xfuaJ-SU",
+            authDomain: "home2026-f3d6e.firebaseapp.com",
+            projectId: "home2026-f3d6e",
+            storageBucket: "home2026-f3d6e.firebasestorage.app",
+            messagingSenderId: "598113828162",
+            appId: "1:598113828162:web:146506e9428d905f995cdb"
+        };
+
+        const ALLOWED_EMAILS = [
+            "200hima200@gmail.com",
+            "christina.kamel.silwans@gmail.com"
+        ];
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        enableIndexedDbPersistence(db).catch(() => {});
+
+        let unsubTransactions = null;
+        let unsubMeta = null;
+        let currentUser = null;
+        let initialCloudLoaded = false;
+
+        function setSyncStatus(state, text) {
+            const badge = document.getElementById('cloudSyncBadge');
+            const label = document.getElementById('cloudSyncText');
+            if (!badge || !label) return;
+            label.textContent = text;
+            if (state === 'online') {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-success-container text-emerald-800 dark:text-on-success-container text-[10px] font-bold";
+            } else if (state === 'syncing') {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-warning-container text-amber-800 dark:text-on-warning-container text-[10px] font-bold";
+            } else {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 dark:bg-dark-error-container text-rose-800 dark:text-dark-on-error-container text-[10px] font-bold";
+            }
+        }
+
+        window.handleNameEmailLogin = async function(e) {
+            e.preventDefault();
+            const nameVal = (document.getElementById('loginDisplayName')?.value || '').trim();
+            const emailVal = (document.getElementById('loginEmailAddress')?.value || '').trim().toLowerCase();
+
+            if (!nameVal || !emailVal) {
+                showToast("Please enter Name and Email / أدخل الاسم والبريد", "error");
+                return;
+            }
+            if (!ALLOWED_EMAILS.includes(emailVal)) {
+                showToast("Email not authorized / البريد غير مصرح له", "error");
+                return;
+            }
+
+            localStorage.setItem('personal_app_user_name', nameVal);
+            localStorage.setItem('personal_app_user_email', emailVal);
+            provider.setCustomParameters({ prompt: 'select_account', login_hint: emailVal });
+            await window.signInWithGoogle();
+        };
+
+        window.signInWithGoogle = async function() {
+            const typedName = (document.getElementById('loginDisplayName')?.value || '').trim();
+            if (typedName) localStorage.setItem('personal_app_user_name', typedName);
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (err) {
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/cancelled-popup-request') {
+                    await signInWithRedirect(auth, provider);
+                } else {
+                    showToast("Login Error: " + (err.message || err.code), "error");
+                }
+            }
+        };
+
+        window.signOutGoogle = async function() {
+            if (unsubTransactions) { unsubTransactions(); unsubTransactions = null; }
+            if (unsubMeta) { unsubMeta(); unsubMeta = null; }
+            await signOut(auth);
+        };
+
+        getRedirectResult(auth).catch(() => {});
+
+        onAuthStateChanged(auth, (user) => {
+            const overlay = document.getElementById('authLoginOverlay');
+            const loadingBox = document.getElementById('authLoadingState');
+            const signInBox = document.getElementById('authSignInBox');
+            const unauthBox = document.getElementById('authUnauthorizedBox');
+
+            loadingBox.classList.add('hidden');
+
+            if (!user) {
+                currentUser = null;
+                overlay.classList.remove('hidden');
+                signInBox.classList.remove('hidden');
+                unauthBox.classList.add('hidden');
+                return;
+            }
+
+            const email = (user.email || "").toLowerCase().trim();
+            if (!ALLOWED_EMAILS.includes(email)) {
+                currentUser = null;
+                overlay.classList.remove('hidden');
+                signInBox.classList.add('hidden');
+                unauthBox.classList.remove('hidden');
+                document.getElementById('unauthorizedEmailText').textContent = `Account: ${user.email}`;
+                return;
+            }
+
+            currentUser = user;
+            overlay.classList.add('hidden');
+            const storedName = localStorage.getItem('personal_app_user_name') || user.displayName || 'Feloosy User';
+            localStorage.setItem('personal_app_user_email', user.email || '');
+            document.getElementById('sidebarUserName').textContent = storedName;
+            document.getElementById('loggedInUserEmail').textContent = user.email || '';
+            document.getElementById('userAvatarInitial').textContent = storedName.charAt(0).toUpperCase();
+            startRealtimeSync();
+        });
+
+        function startRealtimeSync() {
+            if (unsubTransactions) unsubTransactions();
+            if (unsubMeta) unsubMeta();
+
+            setSyncStatus('syncing', 'Syncing...');
+
+            const txCol = collection(db, "floosy_personal", "main", "transactions");
+            unsubTransactions = onSnapshot(txCol, { includeMetadataChanges: true }, (snapshot) => {
+                const cloudActive = [];
+                const cloudTrash = [];
+
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (!data || !data.id) return;
+                    const { _deleted, ...cleanItem } = data;
+                    if (_deleted) cloudTrash.push(cleanItem);
+                    else cloudActive.push(cleanItem);
+                });
+
+                if (!initialCloudLoaded && snapshot.empty && !snapshot.metadata.fromCache && (expenses.length > 0 || trashExpenses.length > 0)) {
+                    initialCloudLoaded = true;
+                    window.bulkSyncAllToCloud();
+                    return;
+                }
+                initialCloudLoaded = true;
+
+                cloudActive.sort((a, b) => (b.expenseDate || '').localeCompare(a.expenseDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+                cloudTrash.sort((a, b) => (b.expenseDate || '').localeCompare(a.expenseDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+                expenses = cloudActive;
+                trashExpenses = cloudTrash;
+
+                localStorage.setItem('personal_app_expenses_v3', JSON.stringify(expenses));
+                localStorage.setItem('personal_app_trash_expenses_v3', JSON.stringify(trashExpenses));
+
+                renderApp();
+                if (!document.getElementById('trashModal').classList.contains('hidden')) {
+                    renderTrashTable();
+                }
+
+                if (snapshot.metadata.hasPendingWrites) setSyncStatus('syncing', 'Uploading');
+                else if (snapshot.metadata.fromCache) setSyncStatus('offline', 'Offline');
+                else setSyncStatus('online', 'Synced');
+            }, (error) => {
+                setSyncStatus('offline', 'Sync Error');
+                if (error.code === 'permission-denied') {
+                    showToast("Firestore permission denied", "error");
+                }
+            });
+
+            const metaDoc = doc(db, "floosy_personal", "main");
+            unsubMeta = onSnapshot(metaDoc, (docSnap) => {
+                if (!docSnap.exists()) {
+                    window.syncSettingsToCloud();
+                    return;
+                }
+                const meta = docSnap.data();
+                if (Array.isArray(meta.personalExpenseCategories) && meta.personalExpenseCategories.length) {
+                    personalExpenseCategories = meta.personalExpenseCategories;
+                    localStorage.setItem('personal_app_personal_expense_categories', JSON.stringify(personalExpenseCategories));
+                }
+                if (meta.budgets && typeof meta.budgets === 'object') {
+                    budgets = meta.budgets;
+                    localStorage.setItem('personal_app_budgets', JSON.stringify(budgets));
+                }
+                if (meta.balancePassword) {
+                    balancePassword = meta.balancePassword;
+                    localStorage.setItem('personal_app_balance_password', balancePassword);
+                }
+                loadCategories();
+                renderApp();
+            });
+        }
+
+        window.upsertCloudTransaction = async function(item, isDeleted = false) {
+            if (!currentUser || !item || !item.id) return;
+            try {
+                const ref = doc(db, "floosy_personal", "main", "transactions", String(item.id));
+                await setDoc(ref, { ...item, _deleted: !!isDeleted, _updatedBy: currentUser.email });
+            } catch (err) {}
+        };
+
+        window.deleteCloudTransaction = async function(id) {
+            if (!currentUser || !id) return;
+            try { await deleteDoc(doc(db, "floosy_personal", "main", "transactions", String(id))); } catch (err) {}
+        };
+
+        window.deleteManyCloudTransactions = async function(ids) {
+            if (!currentUser || !Array.isArray(ids) || !ids.length) return;
+            try {
+                for (let i = 0; i < ids.length; i += 400) {
+                    const batch = writeBatch(db);
+                    ids.slice(i, i + 400).forEach(id => batch.delete(doc(db, "floosy_personal", "main", "transactions", String(id))));
+                    await batch.commit();
+                }
+            } catch (err) {}
+        };
+
+        window.syncSettingsToCloud = async function() {
+            if (!currentUser) return;
+            try {
+                await setDoc(doc(db, "floosy_personal", "main"), {
+                    personalExpenseCategories,
+                    budgets,
+                    balancePassword,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentUser.email
+                }, { merge: true });
+            } catch (err) {}
+        };
+
+        window.bulkSyncAllToCloud = async function() {
+            if (!currentUser) return;
+            try {
+                setSyncStatus('syncing', 'Uploading...');
+                const allOps = [
+                    ...expenses.map(item => ({ item, deleted: false })),
+                    ...trashExpenses.map(item => ({ item, deleted: true }))
+                ];
+                for (let i = 0; i < allOps.length; i += 400) {
+                    const batch = writeBatch(db);
+                    allOps.slice(i, i + 400).forEach(({ item, deleted }) => {
+                        const ref = doc(db, "floosy_personal", "main", "transactions", String(item.id));
+                        batch.set(ref, { ...item, _deleted: deleted, _updatedBy: currentUser.email });
+                    });
+                    await batch.commit();
+                }
+                await window.syncSettingsToCloud();
+                setSyncStatus('online', 'Synced');
+            } catch (err) {}
+        };
+    </script>
+
+</body>
+</html>
